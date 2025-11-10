@@ -2,15 +2,31 @@ import zmq
 import json
 import time
 import os
+import shutil
 
 DATA_FILE = "data.json"
 
 def load_data():
+    # Se "data.json" for um diretório (erro comum em Docker), remove e recria como arquivo
+    if os.path.isdir(DATA_FILE):
+        print(f"[WARN] '{DATA_FILE}' é um diretório — removendo e recriando corretamente.")
+        shutil.rmtree(DATA_FILE)  # remove diretório e conteúdo (se houver)
+
+    # Se o arquivo não existir, cria com estrutura inicial
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, "w") as f:
             json.dump({"users": [], "channels": []}, f)
+
+    # Agora lê os dados normalmente
     with open(DATA_FILE, "r") as f:
-        return json.load(f)
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            # Se o arquivo estiver corrompido, recria do zero
+            print(f"[WARN] '{DATA_FILE}' corrompido — recriando novo arquivo.")
+            with open(DATA_FILE, "w") as fw:
+                json.dump({"users": [], "channels": []}, fw)
+            return {"users": [], "channels": []}
 
 def save_data(data):
     with open(DATA_FILE, "w") as f:
@@ -29,10 +45,20 @@ def handle_request(request):
             save_data(data)
             return {"service": "login", "data": {"status": "sucesso", "timestamp": timestamp}}
         else:
-            return {"service": "login", "data": {"status": "erro", "timestamp": timestamp, "description": "Usuário já cadastrado"}}
+            return {
+                "service": "login",
+                "data": {
+                    "status": "erro",
+                    "timestamp": timestamp,
+                    "description": "Usuário já cadastrado"
+                }
+            }
 
     elif service == "users":
-        return {"service": "users", "data": {"timestamp": time.time(), "users": data["users"]}}
+        return {
+            "service": "users",
+            "data": {"timestamp": time.time(), "users": data["users"]}
+        }
 
     elif service == "channel":
         channel_name = payload.get("channel")
@@ -42,13 +68,30 @@ def handle_request(request):
             save_data(data)
             return {"service": "channel", "data": {"status": "sucesso", "timestamp": timestamp}}
         else:
-            return {"service": "channel", "data": {"status": "erro", "timestamp": timestamp, "description": "Canal já existe"}}
+            return {
+                "service": "channel",
+                "data": {
+                    "status": "erro",
+                    "timestamp": timestamp,
+                    "description": "Canal já existe"
+                }
+            }
 
     elif service == "channels":
-        return {"service": "channels", "data": {"timestamp": time.time(), "channels": data["channels"]}}
+        return {
+            "service": "channels",
+            "data": {"timestamp": time.time(), "channels": data["channels"]}
+        }
 
     else:
-        return {"service": "error", "data": {"status": "erro", "timestamp": time.time(), "description": "Serviço inválido"}}
+        return {
+            "service": "error",
+            "data": {
+                "status": "erro",
+                "timestamp": time.time(),
+                "description": "Serviço inválido"
+            }
+        }
 
 def main():
     context = zmq.Context()
