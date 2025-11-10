@@ -5,32 +5,44 @@ import os
 import shutil
 
 DATA_FILE = "data.json"
+LOGIN_FILE = "login.json"
+
+def ensure_file(path, default_content):
+    """Garante que o arquivo exista e seja válido (recria se for pasta ou corrompido)."""
+    # Se for diretório, remove
+    if os.path.isdir(path):
+        print(f"[WARN] '{path}' é um diretório — removendo e recriando como arquivo.")
+        shutil.rmtree(path)
+
+    # Se o arquivo não existir, cria
+    if not os.path.exists(path):
+        with open(path, "w") as f:
+            json.dump(default_content, f, indent=4)
+
+    # Se existir, tenta ler; recria se estiver corrompido
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        print(f"[WARN] '{path}' corrompido — recriando.")
+        with open(path, "w") as f:
+            json.dump(default_content, f, indent=4)
+        return default_content
 
 def load_data():
-    # Se "data.json" for um diretório (erro comum em Docker), remove e recria como arquivo
-    if os.path.isdir(DATA_FILE):
-        print(f"[WARN] '{DATA_FILE}' é um diretório — removendo e recriando corretamente.")
-        shutil.rmtree(DATA_FILE)  # remove diretório e conteúdo (se houver)
-
-    # Se o arquivo não existir, cria com estrutura inicial
-    if not os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "w") as f:
-            json.dump({"users": [], "channels": []}, f)
-
-    # Agora lê os dados normalmente
-    with open(DATA_FILE, "r") as f:
-        try:
-            return json.load(f)
-        except json.JSONDecodeError:
-            # Se o arquivo estiver corrompido, recria do zero
-            print(f"[WARN] '{DATA_FILE}' corrompido — recriando novo arquivo.")
-            with open(DATA_FILE, "w") as fw:
-                json.dump({"users": [], "channels": []}, fw)
-            return {"users": [], "channels": []}
+    return ensure_file(DATA_FILE, {"users": [], "channels": []})
 
 def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
+
+def save_login(username):
+    """Registra o login do usuário com timestamp em login.json."""
+    logins = ensure_file(LOGIN_FILE, [])
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    logins.append({"user": username, "timestamp": timestamp})
+    with open(LOGIN_FILE, "w") as f:
+        json.dump(logins, f, indent=4)
 
 def handle_request(request):
     data = load_data()
@@ -40,11 +52,15 @@ def handle_request(request):
     if service == "login":
         username = payload.get("user")
         timestamp = time.time()
+
         if username not in data["users"]:
             data["users"].append(username)
             save_data(data)
+            save_login(username)
             return {"service": "login", "data": {"status": "sucesso", "timestamp": timestamp}}
         else:
+            # Mesmo usuário repetindo login: registra tentativa
+            save_login(username)
             return {
                 "service": "login",
                 "data": {
