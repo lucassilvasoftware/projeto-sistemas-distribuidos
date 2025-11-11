@@ -1,5 +1,10 @@
-FROM node:20-slim
+FROM node:18-alpine
+
 WORKDIR /app
-COPY . /app
-RUN npm install zeromq
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
 CMD ["node", "proxy.js"]

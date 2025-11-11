@@ -2,5 +2,21 @@
     {
         "user": "Pedro",
         "timestamp": "2025-11-10 22:58:03"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 02:05:20"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 02:05:46"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 02:10:07"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 02:14:00"
     }
 ]
