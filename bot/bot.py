@@ -56,8 +56,8 @@ def main():
             )
             time.sleep(0.5)
 
-        print("[BOT] Ciclo concluído, recomeçando em 2s...\n")
-        time.sleep(2)
+        print("[BOT] Ciclo concluído, recomeçando em 4s...\n")
+        time.sleep(4)
 
 
 if __name__ == "__main__":

@@ -5534,6 +5534,372 @@
             "channel": "Geral",
             "message": "bot_1 msg 0 no canal Geral",
             "timestamp": 1762827412.534933
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 1 no canal Geral",
+            "timestamp": 1762827413.0471094
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 2 no canal Geral",
+            "timestamp": 1762827413.5604155
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 3 no canal Geral",
+            "timestamp": 1762827414.0735595
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 4 no canal Geral",
+            "timestamp": 1762827414.5852935
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 5 no canal Geral",
+            "timestamp": 1762827415.0981357
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 6 no canal Geral",
+            "timestamp": 1762827415.6107485
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 7 no canal Geral",
+            "timestamp": 1762827416.1231449
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 8 no canal Geral",
+            "timestamp": 1762827416.6355317
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 9 no canal Geral",
+            "timestamp": 1762827417.1479344
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 0 no canal Noticias",
+            "timestamp": 1762827419.666523
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 1 no canal Noticias",
+            "timestamp": 1762827420.1783729
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 2 no canal Noticias",
+            "timestamp": 1762827420.6914508
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 3 no canal Noticias",
+            "timestamp": 1762827421.20389
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 4 no canal Noticias",
+            "timestamp": 1762827421.716655
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 5 no canal Noticias",
+            "timestamp": 1762827422.2300937
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 6 no canal Noticias",
+            "timestamp": 1762827422.7435608
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 7 no canal Noticias",
+            "timestamp": 1762827423.256365
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 8 no canal Noticias",
+            "timestamp": 1762827423.769793
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 9 no canal Noticias",
+            "timestamp": 1762827424.281769
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 0 no canal Blog",
+            "timestamp": 1762827426.7975667
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 1 no canal Blog",
+            "timestamp": 1762827427.310278
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 2 no canal Blog",
+            "timestamp": 1762827427.8236704
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 3 no canal Blog",
+            "timestamp": 1762827428.3365517
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 4 no canal Blog",
+            "timestamp": 1762827428.8494182
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 5 no canal Blog",
+            "timestamp": 1762827429.362976
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 6 no canal Blog",
+            "timestamp": 1762827429.875007
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 7 no canal Blog",
+            "timestamp": 1762827430.3893032
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 8 no canal Blog",
+            "timestamp": 1762827430.903082
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 9 no canal Blog",
+            "timestamp": 1762827431.4165444
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 0 no canal Blog",
+            "timestamp": 1762827433.9347773
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 1 no canal Blog",
+            "timestamp": 1762827434.4473066
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 2 no canal Blog",
+            "timestamp": 1762827434.9611557
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 3 no canal Blog",
+            "timestamp": 1762827435.4738064
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 4 no canal Blog",
+            "timestamp": 1762827435.9873972
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 5 no canal Blog",
+            "timestamp": 1762827436.5006833
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 6 no canal Blog",
+            "timestamp": 1762827437.0144162
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 7 no canal Blog",
+            "timestamp": 1762827437.5286393
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 8 no canal Blog",
+            "timestamp": 1762827438.042399
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 9 no canal Blog",
+            "timestamp": 1762827438.5554543
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 0 no canal Blog",
+            "timestamp": 1762827441.0736966
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 1 no canal Blog",
+            "timestamp": 1762827441.5857816
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 2 no canal Blog",
+            "timestamp": 1762827442.098554
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 3 no canal Blog",
+            "timestamp": 1762827442.6113055
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 4 no canal Blog",
+            "timestamp": 1762827443.125389
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 5 no canal Blog",
+            "timestamp": 1762827443.638259
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 6 no canal Blog",
+            "timestamp": 1762827444.1515055
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 7 no canal Blog",
+            "timestamp": 1762827444.6654496
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 8 no canal Blog",
+            "timestamp": 1762827445.1787844
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 9 no canal Blog",
+            "timestamp": 1762827445.6929107
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 0 no canal Noticias",
+            "timestamp": 1762827448.2113655
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 1 no canal Noticias",
+            "timestamp": 1762827448.7234275
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 2 no canal Noticias",
+            "timestamp": 1762827449.2370217
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 3 no canal Noticias",
+            "timestamp": 1762827449.7505386
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 4 no canal Noticias",
+            "timestamp": 1762827450.2652586
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 5 no canal Noticias",
+            "timestamp": 1762827450.7782142
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 6 no canal Noticias",
+            "timestamp": 1762827451.2916367
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 7 no canal Noticias",
+            "timestamp": 1762827451.8049178
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 8 no canal Noticias",
+            "timestamp": 1762827452.3172565
+        },
+        {
+            "user": "bot_1",
+            "channel": "Noticias",
+            "message": "bot_1 msg 9 no canal Noticias",
+            "timestamp": 1762827452.8303542
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 0 no canal Geral",
+            "timestamp": 1762827455.3489997
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 1 no canal Geral",
+            "timestamp": 1762827455.8599303
         }
     ]
 }
