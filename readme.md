@@ -2,12 +2,42 @@
 
 Sistema de troca de mensagens instantâneas (BBS-like) usando ZeroMQ, MessagePack e Docker.
 
+**Diagramas da Arquitetura**: Veja [DIAGRAMAS.md](./DIAGRAMAS.md) para diagramas detalhados da arquitetura, fluxos de comunicacao, replicacao e mais.
+
 ## Arquitetura
 
 - **3 linguagens**: Python (servidor, cliente, bot), JavaScript/Node.js (UI, proxy), Go (serviço de referência)
 - **ZeroMQ**: Request-Reply e Publisher-Subscriber
 - **MessagePack**: Serialização binária de mensagens
 - **Docker**: Containerização e orquestração
+
+### Visão Geral da Arquitetura
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Browser   │────▶│     UI      │────▶│  Server 1   │
+│  (Cliente)  │     │  (Node.js)  │     │  (Python)   │
+└─────────────┘     └─────────────┘     └─────────────┘
+                            │                    │
+                            │                    │
+                    ┌───────┴───────┐    ┌──────┴──────┐
+                    │               │    │             │
+            ┌───────▼───────┐  ┌───▼───┐  ┌───────────▼──────┐
+            │     Proxy     │  │Reference│ │  Server 2 & 3   │
+            │  (Pub/Sub)    │  │ Service │ │   (Python)      │
+            └───────┬───────┘  └────────┘ └──────────────────┘
+                    │
+            ┌───────┴───────┐
+            │  Bots/Client  │
+            │   (Python)    │
+            └───────────────┘
+```
+
+**Fluxos Principais:**
+1. **REQ/REP**: Clientes → Servidores → Reference Service
+2. **PUB/SUB**: Servidores → Proxy → Clientes
+3. **Replicação**: Servidores → Proxy (tópico "replication") → Outros Servidores
+4. **Eleição**: Servidores → Reference Service → Coordenador eleito
 
 ## Componentes
 
@@ -151,10 +181,16 @@ python scripts/off.py
 │   ├── reference.go
 │   └── Dockerfile
 ├── scripts/         # Scripts auxiliares
-│   ├── on.py
-│   └── off.py
-└── docker-compose.yml
+│   ├── on.py        # Inicia sistema
+│   ├── off.py       # Para sistema
+│   ├── test.py      # Testes automatizados
+│   └── requirements.txt
+├── docker-compose.yml
+├── readme.md
+└── DIAGRAMAS.md     # Diagramas da arquitetura
 ```
+
+**Veja os diagramas detalhados da arquitetura em [DIAGRAMAS.md](./DIAGRAMAS.md)**
 
 ## Serviços e Portas
 
