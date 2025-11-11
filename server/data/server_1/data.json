@@ -7,1458 +7,402 @@
     ],
     "channels": [
         "Geral",
-        "Teste"
+        "Teste",
+        "Atendimento"
     ],
     "subscriptions": {},
     "messages": [
         {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 1 no canal Geral",
-            "timestamp": 1762881197.4223945,
-            "clock": 34
-        },
-        {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 1 no canal Geral",
-            "timestamp": 1762881197.425496,
-            "clock": 38
+            "timestamp": 1762884238.1577682,
+            "clock": 26
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 2 no canal Geral",
-            "timestamp": 1762881205.4336016,
-            "clock": 56
+            "message": "bot_1 msg 1 no canal Geral",
+            "timestamp": 1762884238.228569,
+            "clock": 42
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 2 no canal Geral",
-            "timestamp": 1762881205.4461374,
-            "clock": 64
+            "timestamp": 1762884246.1670766,
+            "clock": 61
         },
         {
             "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 3 no canal Geral",
-            "timestamp": 1762881213.4416406,
-            "clock": 81
+            "channel": "Teste",
+            "message": "bot_1 msg 2 no canal Teste",
+            "timestamp": 1762884246.2365932,
+            "clock": 69
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 3 no canal Geral",
-            "timestamp": 1762881213.4549391,
-            "clock": 89
+            "channel": "Teste",
+            "message": "bot_2 msg 3 no canal Teste",
+            "timestamp": 1762884254.176126,
+            "clock": 87
         },
         {
             "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 4 no canal Geral",
-            "timestamp": 1762881221.4502742,
-            "clock": 108
+            "channel": "Teste",
+            "message": "bot_1 msg 3 no canal Teste",
+            "timestamp": 1762884254.2445285,
+            "clock": 95
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 4 no canal Geral",
-            "timestamp": 1762881221.4646835,
+            "channel": "Teste",
+            "message": "bot_2 msg 4 no canal Teste",
+            "timestamp": 1762884262.1828232,
             "clock": 116
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 5 no canal Geral",
-            "timestamp": 1762881229.4570565,
-            "clock": 126
+            "message": "bot_1 msg 4 no canal Geral",
+            "timestamp": 1762884262.2504942,
+            "clock": 124
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 5 no canal Geral",
-            "timestamp": 1762881229.4708583,
+            "channel": "Teste",
+            "message": "bot_2 msg 5 no canal Teste",
+            "timestamp": 1762884270.1917431,
             "clock": 134
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 6 no canal Geral",
-            "timestamp": 1762881237.465036,
-            "clock": 153
+            "message": "bot_1 msg 5 no canal Geral",
+            "timestamp": 1762884270.2584176,
+            "clock": 142
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 6 no canal Geral",
-            "timestamp": 1762881237.478759,
-            "clock": 161
+            "channel": "Teste",
+            "message": "bot_2 msg 6 no canal Teste",
+            "timestamp": 1762884278.1999736,
+            "clock": 185
+        },
+        {
+            "user": "bot_1",
+            "channel": "Teste",
+            "message": "bot_1 msg 6 no canal Teste",
+            "timestamp": 1762884278.2659385,
+            "clock": 193
+        },
+        {
+            "user": "bot_2",
+            "channel": "Teste",
+            "message": "bot_2 msg 7 no canal Teste",
+            "timestamp": 1762884286.2074168,
+            "clock": 213
         },
         {
             "user": "bot_1",
             "channel": "Geral",
             "message": "bot_1 msg 7 no canal Geral",
-            "timestamp": 1762881245.473034,
-            "clock": 180
+            "timestamp": 1762884286.273153,
+            "clock": 221
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 7 no canal Geral",
-            "timestamp": 1762881245.4872084,
-            "clock": 188
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 8 no canal Geral",
-            "timestamp": 1762881253.4812665,
-            "clock": 203
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 8 no canal Geral",
-            "timestamp": 1762881253.4962113,
-            "clock": 211
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 9 no canal Geral",
-            "timestamp": 1762881261.4881227,
+            "channel": "Teste",
+            "message": "bot_2 msg 8 no canal Teste",
+            "timestamp": 1762884294.2159042,
             "clock": 239
         },
         {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 9 no canal Geral",
-            "timestamp": 1762881261.502901,
+            "user": "bot_1",
+            "channel": "Teste",
+            "message": "bot_1 msg 8 no canal Teste",
+            "timestamp": 1762884294.2817159,
             "clock": 247
         },
         {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 10 no canal Geral",
-            "timestamp": 1762881269.495719,
-            "clock": 257
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 10 no canal Geral",
-            "timestamp": 1762881269.5103595,
-            "clock": 265
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 11 no canal Geral",
-            "timestamp": 1762881277.505106,
-            "clock": 284
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 11 no canal Geral",
-            "timestamp": 1762881277.5188773,
-            "clock": 292
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 12 no canal Geral",
-            "timestamp": 1762881285.5138795,
-            "clock": 311
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 12 no canal Geral",
-            "timestamp": 1762881285.5269253,
-            "clock": 319
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 13 no canal Geral",
-            "timestamp": 1762881293.5210366,
-            "clock": 336
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 13 no canal Geral",
-            "timestamp": 1762881293.535392,
-            "clock": 344
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 14 no canal Geral",
-            "timestamp": 1762881301.53123,
-            "clock": 363
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 14 no canal Geral",
-            "timestamp": 1762881301.5456653,
-            "clock": 371
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 15 no canal Geral",
-            "timestamp": 1762881309.5399058,
-            "clock": 381
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 15 no canal Geral",
-            "timestamp": 1762881309.5535772,
-            "clock": 389
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 16 no canal Geral",
-            "timestamp": 1762881317.5481045,
-            "clock": 408
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 16 no canal Geral",
-            "timestamp": 1762881317.5638807,
-            "clock": 416
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 17 no canal Geral",
-            "timestamp": 1762881325.5569527,
-            "clock": 435
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 17 no canal Geral",
-            "timestamp": 1762881325.572078,
-            "clock": 443
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 18 no canal Geral",
-            "timestamp": 1762881333.5662785,
-            "clock": 458
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 18 no canal Geral",
-            "timestamp": 1762881333.5819538,
-            "clock": 466
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 19 no canal Geral",
-            "timestamp": 1762881341.5758355,
-            "clock": 485
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 19 no canal Geral",
-            "timestamp": 1762881341.5913134,
-            "clock": 493
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 20 no canal Geral",
-            "timestamp": 1762881349.583524,
-            "clock": 503
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 20 no canal Geral",
-            "timestamp": 1762881349.59775,
-            "clock": 511
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 21 no canal Geral",
-            "timestamp": 1762881357.5924985,
-            "clock": 530
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 21 no canal Geral",
-            "timestamp": 1762881357.6069508,
-            "clock": 538
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 22 no canal Geral",
-            "timestamp": 1762881365.6022162,
-            "clock": 557
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 22 no canal Geral",
-            "timestamp": 1762881365.618027,
-            "clock": 565
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 23 no canal Geral",
-            "timestamp": 1762881373.611222,
-            "clock": 582
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 23 no canal Geral",
-            "timestamp": 1762881373.6289685,
-            "clock": 590
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 24 no canal Geral",
-            "timestamp": 1762881381.6187918,
-            "clock": 609
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 24 no canal Geral",
-            "timestamp": 1762881381.6374893,
-            "clock": 617
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 25 no canal Geral",
-            "timestamp": 1762881389.6279685,
-            "clock": 627
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 25 no canal Geral",
-            "timestamp": 1762881389.6456225,
-            "clock": 635
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 26 no canal Geral",
-            "timestamp": 1762881397.6377387,
-            "clock": 654
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 26 no canal Geral",
-            "timestamp": 1762881397.6535897,
-            "clock": 662
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 27 no canal Geral",
-            "timestamp": 1762881405.6472456,
-            "clock": 681
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 27 no canal Geral",
-            "timestamp": 1762881405.6636233,
-            "clock": 689
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 28 no canal Geral",
-            "timestamp": 1762881413.656376,
-            "clock": 706
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 28 no canal Geral",
-            "timestamp": 1762881413.6724756,
-            "clock": 714
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 29 no canal Geral",
-            "timestamp": 1762881421.6661186,
-            "clock": 733
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 29 no canal Geral",
-            "timestamp": 1762881421.6817968,
-            "clock": 741
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 30 no canal Geral",
-            "timestamp": 1762881429.6759222,
-            "clock": 751
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 30 no canal Geral",
-            "timestamp": 1762881429.6901054,
-            "clock": 759
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 31 no canal Geral",
-            "timestamp": 1762881437.6856027,
-            "clock": 778
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 31 no canal Geral",
-            "timestamp": 1762881437.7016997,
-            "clock": 786
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 32 no canal Geral",
-            "timestamp": 1762881445.6948378,
-            "clock": 805
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 32 no canal Geral",
-            "timestamp": 1762881445.7090306,
-            "clock": 813
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 33 no canal Geral",
-            "timestamp": 1762881453.7034893,
-            "clock": 830
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 33 no canal Geral",
-            "timestamp": 1762881453.7206135,
-            "clock": 838
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 34 no canal Geral",
-            "timestamp": 1762881461.7128408,
-            "clock": 857
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 34 no canal Geral",
-            "timestamp": 1762881461.7294364,
-            "clock": 865
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 35 no canal Geral",
-            "timestamp": 1762881469.7198935,
-            "clock": 875
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 35 no canal Geral",
-            "timestamp": 1762881469.734752,
-            "clock": 883
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 36 no canal Geral",
-            "timestamp": 1762881477.7280688,
-            "clock": 902
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 36 no canal Geral",
-            "timestamp": 1762881477.742405,
-            "clock": 910
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 37 no canal Geral",
-            "timestamp": 1762881485.736987,
-            "clock": 929
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 37 no canal Geral",
-            "timestamp": 1762881485.7512016,
-            "clock": 937
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 38 no canal Geral",
-            "timestamp": 1762881493.7455606,
-            "clock": 954
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 38 no canal Geral",
-            "timestamp": 1762881493.761036,
-            "clock": 962
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 39 no canal Geral",
-            "timestamp": 1762881501.7532334,
-            "clock": 981
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 39 no canal Geral",
-            "timestamp": 1762881501.7677364,
-            "clock": 989
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 40 no canal Geral",
-            "timestamp": 1762881509.7619798,
-            "clock": 999
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 40 no canal Geral",
-            "timestamp": 1762881509.776893,
-            "clock": 1007
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 41 no canal Geral",
-            "timestamp": 1762881517.7714381,
-            "clock": 1026
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 41 no canal Geral",
-            "timestamp": 1762881517.7863982,
-            "clock": 1034
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 42 no canal Geral",
-            "timestamp": 1762881525.7788992,
-            "clock": 1053
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 42 no canal Geral",
-            "timestamp": 1762881525.7951126,
-            "clock": 1061
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 43 no canal Geral",
-            "timestamp": 1762881533.7880263,
-            "clock": 1076
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 43 no canal Geral",
-            "timestamp": 1762881533.8030818,
-            "clock": 1084
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 44 no canal Geral",
-            "timestamp": 1762881541.797109,
-            "clock": 1103
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 44 no canal Geral",
-            "timestamp": 1762881541.8122544,
-            "clock": 1111
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 45 no canal Geral",
-            "timestamp": 1762881549.806292,
-            "clock": 1121
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 45 no canal Geral",
-            "timestamp": 1762881549.8210533,
-            "clock": 1129
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 46 no canal Geral",
-            "timestamp": 1762881557.814906,
-            "clock": 1148
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 46 no canal Geral",
-            "timestamp": 1762881557.8310754,
-            "clock": 1156
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 47 no canal Geral",
-            "timestamp": 1762881565.8244255,
-            "clock": 1175
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 47 no canal Geral",
-            "timestamp": 1762881565.8393776,
-            "clock": 1183
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 48 no canal Geral",
-            "timestamp": 1762881573.833725,
-            "clock": 1200
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 48 no canal Geral",
-            "timestamp": 1762881573.8501318,
-            "clock": 1208
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 49 no canal Geral",
-            "timestamp": 1762881581.8429465,
-            "clock": 1227
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 49 no canal Geral",
-            "timestamp": 1762881581.85787,
-            "clock": 1235
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 50 no canal Geral",
-            "timestamp": 1762881589.8509905,
-            "clock": 1245
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 50 no canal Geral",
-            "timestamp": 1762881589.8658032,
-            "clock": 1253
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 51 no canal Geral",
-            "timestamp": 1762881597.8610494,
-            "clock": 1272
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 51 no canal Geral",
-            "timestamp": 1762881597.8758447,
-            "clock": 1280
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 52 no canal Geral",
-            "timestamp": 1762881605.870203,
-            "clock": 1299
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 52 no canal Geral",
-            "timestamp": 1762881605.8844967,
-            "clock": 1307
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 53 no canal Geral",
-            "timestamp": 1762881613.8790953,
-            "clock": 1324
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 53 no canal Geral",
-            "timestamp": 1762881613.8952296,
-            "clock": 1332
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 54 no canal Geral",
-            "timestamp": 1762881621.8859618,
-            "clock": 1349
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 54 no canal Geral",
-            "timestamp": 1762881621.9004157,
-            "clock": 1357
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 55 no canal Geral",
-            "timestamp": 1762881629.8950677,
-            "clock": 1367
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 55 no canal Geral",
-            "timestamp": 1762881629.9093132,
-            "clock": 1375
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 56 no canal Geral",
-            "timestamp": 1762881637.9041739,
-            "clock": 1394
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 56 no canal Geral",
-            "timestamp": 1762881637.9190907,
-            "clock": 1402
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 57 no canal Geral",
-            "timestamp": 1762881645.9136467,
-            "clock": 1421
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 57 no canal Geral",
-            "timestamp": 1762881645.9277117,
-            "clock": 1429
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 58 no canal Geral",
-            "timestamp": 1762881653.9226842,
-            "clock": 1444
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 58 no canal Geral",
-            "timestamp": 1762881653.9374373,
-            "clock": 1452
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 59 no canal Geral",
-            "timestamp": 1762881661.9317486,
-            "clock": 1471
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 59 no canal Geral",
-            "timestamp": 1762881661.9461725,
-            "clock": 1479
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 60 no canal Geral",
-            "timestamp": 1762881669.9410872,
-            "clock": 1489
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 60 no canal Geral",
-            "timestamp": 1762881669.9561806,
-            "clock": 1497
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 61 no canal Geral",
-            "timestamp": 1762881677.9483387,
-            "clock": 1516
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 61 no canal Geral",
-            "timestamp": 1762881677.9656324,
-            "clock": 1524
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 62 no canal Geral",
-            "timestamp": 1762881685.9578545,
-            "clock": 1543
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 62 no canal Geral",
-            "timestamp": 1762881685.9743392,
-            "clock": 1551
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 63 no canal Geral",
-            "timestamp": 1762881693.9669046,
-            "clock": 1568
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 63 no canal Geral",
-            "timestamp": 1762881693.9820976,
-            "clock": 1576
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 64 no canal Geral",
-            "timestamp": 1762881701.9758754,
-            "clock": 1595
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 64 no canal Geral",
-            "timestamp": 1762881701.9904454,
-            "clock": 1603
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 65 no canal Geral",
-            "timestamp": 1762881709.9846056,
-            "clock": 1613
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 65 no canal Geral",
-            "timestamp": 1762881709.9991977,
-            "clock": 1621
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 66 no canal Geral",
-            "timestamp": 1762881717.993851,
-            "clock": 1640
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 66 no canal Geral",
-            "timestamp": 1762881718.0086021,
-            "clock": 1648
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 67 no canal Geral",
-            "timestamp": 1762881726.0034685,
-            "clock": 1667
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 67 no canal Geral",
-            "timestamp": 1762881726.0184517,
-            "clock": 1675
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 68 no canal Geral",
-            "timestamp": 1762881734.013657,
-            "clock": 1692
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 68 no canal Geral",
-            "timestamp": 1762881734.0332243,
-            "clock": 1700
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 69 no canal Geral",
-            "timestamp": 1762881742.0218534,
-            "clock": 1719
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 69 no canal Geral",
-            "timestamp": 1762881742.0416365,
-            "clock": 1727
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 70 no canal Geral",
-            "timestamp": 1762881750.0346375,
-            "clock": 1737
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 70 no canal Geral",
-            "timestamp": 1762881750.0506933,
-            "clock": 1745
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 1 no canal Geral",
-            "timestamp": 1762881816.348282,
-            "clock": 23
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 1 no canal Geral",
-            "timestamp": 1762881816.4133317,
-            "clock": 39
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 2 no canal Geral",
-            "timestamp": 1762881824.3592181,
-            "clock": 58
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 2 no canal Geral",
-            "timestamp": 1762881824.4254897,
-            "clock": 66
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 3 no canal Geral",
-            "timestamp": 1762881832.367702,
-            "clock": 83
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 3 no canal Geral",
-            "timestamp": 1762881832.4336812,
-            "clock": 91
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 4 no canal Geral",
-            "timestamp": 1762881840.3771422,
-            "clock": 110
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 4 no canal Geral",
-            "timestamp": 1762881840.442981,
-            "clock": 118
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 5 no canal Geral",
-            "timestamp": 1762881848.3870275,
-            "clock": 140
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 5 no canal Geral",
-            "timestamp": 1762881848.4527137,
-            "clock": 148
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 6 no canal Geral",
-            "timestamp": 1762881856.395377,
-            "clock": 167
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 6 no canal Geral",
-            "timestamp": 1762881856.4609337,
-            "clock": 175
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 7 no canal Geral",
-            "timestamp": 1762881864.4053352,
-            "clock": 192
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 7 no canal Geral",
-            "timestamp": 1762881864.473319,
-            "clock": 200
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 8 no canal Geral",
-            "timestamp": 1762881872.4159095,
-            "clock": 217
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 8 no canal Geral",
-            "timestamp": 1762881872.485296,
-            "clock": 225
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 9 no canal Geral",
-            "timestamp": 1762881880.426456,
-            "clock": 244
-        },
-        {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 9 no canal Geral",
-            "timestamp": 1762881880.4960334,
-            "clock": 252
+            "timestamp": 1762884302.2241704,
+            "clock": 267
         },
         {
             "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 10 no canal Geral",
-            "timestamp": 1762881888.4348066,
-            "clock": 262
+            "channel": "Teste",
+            "message": "bot_1 msg 9 no canal Teste",
+            "timestamp": 1762884302.290113,
+            "clock": 275
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 10 no canal Geral",
-            "timestamp": 1762881888.504923,
-            "clock": 270
+            "timestamp": 1762884310.232447,
+            "clock": 285
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 10 no canal Geral",
+            "timestamp": 1762884310.298748,
+            "clock": 293
+        },
+        {
+            "user": "bot_2",
+            "channel": "Teste",
+            "message": "bot_2 msg 11 no canal Teste",
+            "timestamp": 1762884318.2395074,
+            "clock": 314
         },
         {
             "user": "bot_1",
             "channel": "Geral",
             "message": "bot_1 msg 11 no canal Geral",
-            "timestamp": 1762881896.445022,
-            "clock": 289
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 11 no canal Geral",
-            "timestamp": 1762881896.5147705,
-            "clock": 297
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 12 no canal Geral",
-            "timestamp": 1762881904.4547925,
-            "clock": 316
+            "timestamp": 1762884318.305415,
+            "clock": 322
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 12 no canal Geral",
-            "timestamp": 1762881904.5240834,
-            "clock": 324
-        },
-        {
-            "user": "Lucas",
-            "channel": "Geral",
-            "message": "OL\u00c1AAAAA",
-            "timestamp": 1762881907.727,
-            "clock": 328
+            "timestamp": 1762884326.2493744,
+            "clock": 342
         },
         {
             "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 13 no canal Geral",
-            "timestamp": 1762881912.4650044,
-            "clock": 345
+            "channel": "Teste",
+            "message": "bot_1 msg 12 no canal Teste",
+            "timestamp": 1762884326.3138335,
+            "clock": 350
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 13 no canal Geral",
-            "timestamp": 1762881912.534047,
-            "clock": 353
-        },
-        {
-            "user": "Lucas",
-            "channel": "Teste",
-            "message": "Oiiii",
-            "timestamp": 1762881919.937,
+            "timestamp": 1762884334.2589617,
             "clock": 379
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 14 no canal Geral",
-            "timestamp": 1762881920.4746728,
+            "message": "bot_1 msg 13 no canal Geral",
+            "timestamp": 1762884334.3227248,
             "clock": 387
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 14 no canal Geral",
-            "timestamp": 1762881920.5431876,
-            "clock": 395
+            "timestamp": 1762884342.2676055,
+            "clock": 407
         },
         {
             "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 15 no canal Teste",
-            "timestamp": 1762881928.4848456,
+            "channel": "Geral",
+            "message": "bot_1 msg 14 no canal Geral",
+            "timestamp": 1762884342.33107,
             "clock": 415
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 15 no canal Geral",
-            "timestamp": 1762881928.5532215,
-            "clock": 423
+            "timestamp": 1762884350.274112,
+            "clock": 431
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 15 no canal Geral",
+            "timestamp": 1762884350.3372126,
+            "clock": 439
+        },
+        {
+            "user": "Lucas",
+            "channel": "Teste",
+            "message": "OIIIIIIIIIIII",
+            "timestamp": 1762884351.676,
+            "clock": 453
         },
         {
             "user": "Pedro",
             "channel": "Teste",
-            "message": "eae",
-            "timestamp": 1762881931.824,
-            "clock": 444
-        },
-        {
-            "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 16 no canal Teste",
-            "timestamp": 1762881936.4947822,
-            "clock": 454
+            "message": "OL\u00c1AAAAAA",
+            "timestamp": 1762884355.319,
+            "clock": 459
         },
         {
             "user": "bot_2",
             "channel": "Geral",
             "message": "bot_2 msg 16 no canal Geral",
-            "timestamp": 1762881936.5628417,
-            "clock": 462
+            "timestamp": 1762884358.2821834,
+            "clock": 469
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 16 no canal Geral",
+            "timestamp": 1762884358.3450222,
+            "clock": 477
+        },
+        {
+            "user": "bot_2",
+            "channel": "Teste",
+            "message": "bot_2 msg 17 no canal Teste",
+            "timestamp": 1762884366.2901933,
+            "clock": 497
         },
         {
             "user": "bot_1",
             "channel": "Geral",
             "message": "bot_1 msg 17 no canal Geral",
-            "timestamp": 1762881944.505422,
-            "clock": 481
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 17 no canal Geral",
-            "timestamp": 1762881944.5725327,
-            "clock": 489
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 18 no canal Geral",
-            "timestamp": 1762881952.5148752,
-            "clock": 504
+            "timestamp": 1762884366.353021,
+            "clock": 505
         },
         {
             "user": "bot_2",
             "channel": "Teste",
             "message": "bot_2 msg 18 no canal Teste",
-            "timestamp": 1762881952.5809627,
-            "clock": 512
+            "timestamp": 1762884374.2988029,
+            "clock": 524
         },
         {
             "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 19 no canal Geral",
-            "timestamp": 1762881960.5248575,
-            "clock": 531
+            "channel": "Teste",
+            "message": "bot_1 msg 18 no canal Teste",
+            "timestamp": 1762884374.3616142,
+            "clock": 532
         },
         {
             "user": "bot_2",
             "channel": "Teste",
             "message": "bot_2 msg 19 no canal Teste",
-            "timestamp": 1762881960.5903828,
-            "clock": 539
+            "timestamp": 1762884382.306139,
+            "clock": 552
+        },
+        {
+            "user": "bot_1",
+            "channel": "Teste",
+            "message": "bot_1 msg 19 no canal Teste",
+            "timestamp": 1762884382.3694932,
+            "clock": 560
+        },
+        {
+            "user": "bot_2",
+            "channel": "Teste",
+            "message": "bot_2 msg 20 no canal Teste",
+            "timestamp": 1762884390.3144572,
+            "clock": 570
         },
         {
             "user": "bot_1",
             "channel": "Teste",
             "message": "bot_1 msg 20 no canal Teste",
-            "timestamp": 1762881968.534817,
-            "clock": 549
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 20 no canal Geral",
-            "timestamp": 1762881968.6003976,
-            "clock": 557
-        },
-        {
-            "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 21 no canal Teste",
-            "timestamp": 1762881976.5435383,
-            "clock": 574
+            "timestamp": 1762884390.3789575,
+            "clock": 578
         },
         {
             "user": "bot_2",
             "channel": "Teste",
             "message": "bot_2 msg 21 no canal Teste",
-            "timestamp": 1762881976.6090171,
-            "clock": 582
+            "timestamp": 1762884398.3229222,
+            "clock": 598
+        },
+        {
+            "user": "bot_1",
+            "channel": "Teste",
+            "message": "bot_1 msg 21 no canal Teste",
+            "timestamp": 1762884398.3874133,
+            "clock": 606
+        },
+        {
+            "user": "bot_2",
+            "channel": "Teste",
+            "message": "bot_2 msg 22 no canal Teste",
+            "timestamp": 1762884406.3294744,
+            "clock": 626
         },
         {
             "user": "bot_1",
             "channel": "Teste",
             "message": "bot_1 msg 22 no canal Teste",
-            "timestamp": 1762881984.5547535,
-            "clock": 601
+            "timestamp": 1762884406.393944,
+            "clock": 634
         },
         {
             "user": "bot_2",
             "channel": "Geral",
-            "message": "bot_2 msg 22 no canal Geral",
-            "timestamp": 1762881984.6192114,
-            "clock": 609
+            "message": "bot_2 msg 23 no canal Geral",
+            "timestamp": 1762884414.338154,
+            "clock": 652
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 1 no canal Geral",
-            "timestamp": 1762882494.9636347,
-            "clock": 26
+            "message": "bot_1 msg 23 no canal Geral",
+            "timestamp": 1762884414.4026115,
+            "clock": 660
         },
         {
             "user": "bot_2",
-            "channel": "Teste",
-            "message": "bot_2 msg 1 no canal Teste",
-            "timestamp": 1762882494.9934638,
-            "clock": 42
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 2 no canal Geral",
-            "timestamp": 1762882502.9736447,
-            "clock": 59
-        },
-        {
-            "user": "bot_2",
-            "channel": "Teste",
-            "message": "bot_2 msg 2 no canal Teste",
-            "timestamp": 1762882503.0053825,
-            "clock": 67
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 3 no canal Geral",
-            "timestamp": 1762882510.9839115,
-            "clock": 83
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 3 no canal Geral",
-            "timestamp": 1762882511.0164664,
-            "clock": 91
+            "channel": "Atendimento",
+            "message": "bot_2 msg 24 no canal Atendimento",
+            "timestamp": 1762884422.3465528,
+            "clock": 695
         },
         {
             "user": "bot_1",
             "channel": "Teste",
-            "message": "bot_1 msg 4 no canal Teste",
-            "timestamp": 1762882518.9933178,
-            "clock": 109
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 4 no canal Geral",
-            "timestamp": 1762882519.0257664,
-            "clock": 117
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 5 no canal Geral",
-            "timestamp": 1762882527.004533,
-            "clock": 149
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 5 no canal Geral",
-            "timestamp": 1762882527.0364778,
-            "clock": 157
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 6 no canal Geral",
-            "timestamp": 1762882535.0151289,
-            "clock": 176
-        },
-        {
-            "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 6 no canal Geral",
-            "timestamp": 1762882535.0462215,
-            "clock": 184
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 7 no canal Geral",
-            "timestamp": 1762882543.02512,
-            "clock": 202
+            "message": "bot_1 msg 24 no canal Teste",
+            "timestamp": 1762884422.411191,
+            "clock": 703
         },
         {
             "user": "bot_2",
             "channel": "Teste",
-            "message": "bot_2 msg 7 no canal Teste",
-            "timestamp": 1762882543.0554526,
-            "clock": 210
+            "message": "bot_2 msg 25 no canal Teste",
+            "timestamp": 1762884430.3550885,
+            "clock": 719
         },
         {
             "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 8 no canal Teste",
-            "timestamp": 1762882551.034532,
-            "clock": 226
+            "channel": "Atendimento",
+            "message": "bot_1 msg 25 no canal Atendimento",
+            "timestamp": 1762884430.4195974,
+            "clock": 727
         },
         {
             "user": "bot_2",
             "channel": "Teste",
-            "message": "bot_2 msg 8 no canal Teste",
-            "timestamp": 1762882551.0639648,
-            "clock": 234
-        },
-        {
-            "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 9 no canal Teste",
-            "timestamp": 1762882559.0457542,
-            "clock": 252
-        },
-        {
-            "user": "bot_2",
-            "channel": "Teste",
-            "message": "bot_2 msg 9 no canal Teste",
-            "timestamp": 1762882559.073855,
-            "clock": 260
+            "message": "bot_2 msg 26 no canal Teste",
+            "timestamp": 1762884438.3633144,
+            "clock": 747
         },
         {
             "user": "bot_1",
             "channel": "Geral",
-            "message": "bot_1 msg 10 no canal Geral",
-            "timestamp": 1762882567.056795,
-            "clock": 270
+            "message": "bot_1 msg 26 no canal Geral",
+            "timestamp": 1762884438.42719,
+            "clock": 755
         },
         {
             "user": "bot_2",
-            "channel": "Geral",
-            "message": "bot_2 msg 10 no canal Geral",
-            "timestamp": 1762882567.0845304,
-            "clock": 278
+            "channel": "Atendimento",
+            "message": "bot_2 msg 27 no canal Atendimento",
+            "timestamp": 1762884446.3724012,
+            "clock": 775
+        },
+        {
+            "user": "bot_1",
+            "channel": "Atendimento",
+            "message": "bot_1 msg 27 no canal Atendimento",
+            "timestamp": 1762884446.4354987,
+            "clock": 783
         }
     ]
 }
