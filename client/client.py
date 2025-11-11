@@ -3,6 +3,7 @@ import msgpack
 import time
 import threading
 import queue
+import sys
 
 PROXY = "proxy"
 SERVER = "server"
@@ -12,6 +13,7 @@ PORT_SUB = 5558
 sub_commands = queue.Queue()
 
 
+# ---------- Helpers MsgPack ----------
 def send_msgpack(sock, obj):
     data = msgpack.packb(obj, use_bin_type=True)
     sock.send(data)
@@ -22,123 +24,141 @@ def recv_msgpack(sock):
     return msgpack.unpackb(data, raw=False)
 
 
+# ---------- Subscriber Thread ----------
 def subscriber_thread():
-    context = zmq.Context()
-    sub_socket = context.socket(zmq.SUB)
-    sub_socket.connect(f"tcp://{PROXY}:{PORT_SUB}")
-    print(f"[CLIENT-SUB] Conectado ao proxy em tcp://{PROXY}:{PORT_SUB}")
+    ctx = zmq.Context()
+    sub = ctx.socket(zmq.SUB)
+    sub.connect(f"tcp://{PROXY}:{PORT_SUB}")
+    print(f"[SUB] Conectado em tcp://{PROXY}:{PORT_SUB}")
 
     poller = zmq.Poller()
-    poller.register(sub_socket, zmq.POLLIN)
+    poller.register(sub, zmq.POLLIN)
 
     while True:
-        # aplicar inscrições
+        # Verifica novos tópicos para assinar
         try:
             while True:
                 topic = sub_commands.get_nowait()
-                sub_socket.setsockopt_string(zmq.SUBSCRIBE, topic)
-                print(f"[CLIENT-SUB] Assinado tópico '{topic}'")
+                sub.setsockopt_string(zmq.SUBSCRIBE, topic)
+                print(f"[SUB] Assinado no canal '{topic}'")
         except queue.Empty:
             pass
 
+        # Lê mensagens
         socks = dict(poller.poll(100))
-        if sub_socket in socks and socks[sub_socket] == zmq.POLLIN:
-            frames = sub_socket.recv_multipart()
-            if len(frames) < 2:
-                print(f"[CLIENT-SUB][WARN] Mensagem inesperada: {frames}")
-                continue
-
-            topic = frames[0].decode()
+        if sub in socks and socks[sub] == zmq.POLLIN:
             try:
+                frames = sub.recv_multipart()
+                if len(frames) < 2:
+                    continue
+                topic = frames[0].decode()
                 payload = msgpack.unpackb(frames[1], raw=False)
+                ts = time.strftime(
+                    "%H:%M:%S", time.localtime(payload.get("timestamp", time.time()))
+                )
+                print(
+                    f"\n[{ts}] ({topic}) {payload.get('user')}: {payload.get('message')}\n> ",
+                    end="",
+                )
             except Exception as e:
-                print(f"[CLIENT-SUB][ERRO] Falha ao decodificar msgpack: {e}")
-                continue
-
-            user = payload.get("user")
-            channel = payload.get("channel", topic)
-            text = payload.get("message")
-            ts = time.strftime(
-                "%H:%M:%S", time.localtime(payload.get("timestamp", time.time()))
-            )
-            print(f"\n[MSG][{ts}] ({channel}) {user}: {text}\n> ", end="")
+                print(f"[ERRO][SUB] Falha ao decodificar mensagem: {e}")
 
 
-def send_request(socket, service, data):
+# ---------- REQ Helper ----------
+def send_request(sock, service, data):
     msg = {"service": service, "data": data}
-    print(f"[CLIENT-REQ] Enviando: {msg}")
-    send_msgpack(socket, msg)
-    reply = recv_msgpack(socket)
-    print(f"[CLIENT-REQ] Resposta: {reply}")
-    return reply
+    send_msgpack(sock, msg)
+    resp = recv_msgpack(sock)
+    print(f"[RESP] {resp}")
+    return resp
 
 
+# ---------- UI Terminal ----------
 def main():
+    ctx = zmq.Context()
+    req = ctx.socket(zmq.REQ)
+    req.connect(f"tcp://{SERVER}:{PORT_REQ}")
+    print(f"[CLIENT] REQ conectado em tcp://{SERVER}:{PORT_REQ}")
+
+    # Thread do subscriber
     threading.Thread(target=subscriber_thread, daemon=True).start()
 
-    context = zmq.Context()
-    req_socket = context.socket(zmq.REQ)
-    req_socket.connect(f"tcp://{SERVER}:{PORT_REQ}")
-    print(f"[CLIENT] Conectado ao servidor em tcp://{SERVER}:{PORT_REQ}")
+    # Login
+    user = input("Digite seu nome de usuário: ").strip()
+    if not user:
+        print("Usuário inválido.")
+        sys.exit(1)
+    send_request(req, "login", {"user": user, "timestamp": time.time()})
 
-    user = input("Digite seu nome de usuário: ")
-    send_request(req_socket, "login", {"user": user, "timestamp": time.time()})
+    current_channel = None
 
     while True:
-        print("\n--- MENU ---")
-        print("1 - Listar usuários")
-        print("2 - Criar canal")
-        print("3 - Listar canais")
-        print("4 - Inscrever em canal")
-        print("5 - Publicar mensagem em canal")
-        print("0 - Sair")
+        print("\n=== MENU ===")
+        print("1. Listar usuários")
+        print("2. Criar canal")
+        print("3. Listar canais")
+        print("4. Entrar em canal")
+        print("5. Enviar mensagem")
+        print("6. Sair")
+        choice = input("> ").strip()
 
-        op = input("> ")
+        if choice == "1":
+            send_request(req, "users", {})
 
-        if op == "1":
-            send_request(req_socket, "users", {"timestamp": time.time()})
+        elif choice == "2":
+            ch = input("Nome do canal: ").strip()
+            if ch:
+                send_request(req, "channel", {"channel": ch})
 
-        elif op == "2":
-            canal = input("Nome do canal: ")
+        elif choice == "3":
+            send_request(req, "channels", {})
+
+        elif choice == "4":
+            ch = input("Entrar em canal: ").strip()
+            if not ch:
+                continue
+            send_request(req, "subscribe", {"user": user, "channel": ch})
+            sub_commands.put(ch)
+            current_channel = ch
+
+            # Carrega histórico
+            print(f"[INFO] Carregando histórico de '{ch}'...")
+            resp = send_request(req, "history", {"channel": ch})
+            msgs = resp.get("data", {}).get("messages", [])
+            if not msgs:
+                print(f"[INFO] Nenhuma mensagem anterior em '{ch}'.")
+            else:
+                print(f"[INFO] Últimas {len(msgs)} mensagens:")
+                for m in msgs:
+                    ts = time.strftime(
+                        "%H:%M:%S", time.localtime(m.get("timestamp", time.time()))
+                    )
+                    print(f"[{ts}] {m['user']}: {m['message']}")
+
+        elif choice == "5":
+            if not current_channel:
+                print("⚠️  Entre em um canal primeiro.")
+                continue
+            msg_txt = input("Mensagem: ").strip()
+            if not msg_txt:
+                continue
             send_request(
-                req_socket,
-                "channel",
-                {"channel": canal, "timestamp": time.time()},
-            )
-
-        elif op == "3":
-            send_request(req_socket, "channels", {"timestamp": time.time()})
-
-        elif op == "4":
-            canal = input("Canal para se inscrever: ")
-            resp = send_request(
-                req_socket,
-                "subscribe",
-                {"user": user, "channel": canal, "timestamp": time.time()},
-            )
-            if resp.get("data", {}).get("status") == "sucesso":
-                sub_commands.put(canal)
-
-        elif op == "5":
-            canal = input("Canal: ")
-            texto = input("Mensagem: ")
-            send_request(
-                req_socket,
+                req,
                 "publish",
                 {
                     "user": user,
-                    "channel": canal,
-                    "message": texto,
+                    "channel": current_channel,
+                    "message": msg_txt,
                     "timestamp": time.time(),
                 },
             )
 
-        elif op == "0":
-            print("[CLIENT] Encerrando cliente.")
+        elif choice == "6":
+            print("Saindo...")
             break
 
         else:
-            print("[CLIENT] Opção inválida.")
+            print("Opção inválida.")
 
 
 if __name__ == "__main__":

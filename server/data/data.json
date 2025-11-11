@@ -1,32 +1,8 @@
 {
-    "users": [
-        "Lucas",
-        "Pedro",
-        "bot_1"
-    ],
-    "channels": [
-        "Geral",
-        "Blog",
-        "Noticias"
-    ],
-    "subscriptions": {
-        "Lucas": [
-            "Geral",
-            "Blog"
-        ]
-    },
-    "messages": [
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 0 no canal Geral",
-            "timestamp": 1762831054.8646762
-        },
-        {
-            "user": "bot_1",
-            "channel": "Noticias",
-            "message": "bot_1 msg 0 no canal Noticias",
-            "timestamp": 1762831063.3706925
-        }
-    ]
+  "users": ["Lucas", "bot_1"],
+  "channels": ["Geral", "Blog"],
+  "subscriptions": {
+    "Lucas": ["Geral", "Blog"]
+  },
+  "messages": []
 }

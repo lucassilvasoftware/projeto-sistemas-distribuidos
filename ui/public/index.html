@@ -3,89 +3,88 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>MsgPack Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Distribuído — Parte 3</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <!-- Overlay de Login -->
-  <div id="login-overlay">
-    <div class="login-card">
-      <div class="login-brand">
-        <div class="dot"></div>
-        <span>MsgPack Chat</span>
-      </div>
-      <h1>Entrar</h1>
-      <p>Escolha um nome de usuário para entrar no chat distribuído.</p>
-      <input id="login-username" type="text" placeholder="seu-usuário" />
+  <div id="login-overlay" class="overlay active">
+    <div class="overlay-box">
+      <h2>🔐 Entrar no Chat</h2>
+      <input type="text" id="login-username" placeholder="Digite seu nome..." />
       <button id="login-btn">Entrar</button>
-      <p class="login-hint">
-        Usuário é registrado no servidor. Se já existir, o login é registrado e você entra do mesmo jeito.
-      </p>
     </div>
   </div>
 
-  <!-- App principal -->
-  <div class="app">
+  <div class="main">
+    <!-- Painel lateral -->
     <aside class="sidebar">
-      <div class="brand">
-        <div class="dot"></div>
-        <span>MsgPack Chat</span>
+      <div class="user-box">
+        <label>Usuário:</label>
+        <input id="username" disabled />
       </div>
 
       <div class="section">
-        <label for="username">Usuário atual</label>
-        <input id="username" type="text" placeholder="não logado" disabled />
+        <h3>Canais</h3>
+        <ul id="channel-list"></ul>
+        <div class="inline">
+          <input type="text" id="new-channel" placeholder="Novo canal..." />
+          <button id="create-channel">+</button>
+        </div>
+        <button id="refresh-channels" class="small">Atualizar canais</button>
       </div>
 
       <div class="section">
-        <div class="section-header">
-          <span>Canais</span>
-          <button id="refresh-channels" class="icon-btn" title="Atualizar canais">⟳</button>
-        </div>
-        <ul id="channel-list" class="list"></ul>
-        <div class="inline-form">
-          <input id="new-channel" type="text" placeholder="novo-canal" />
-          <button id="create-channel" class="primary-btn">+</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-header">
-          <span>Usuários</span>
-          <button id="refresh-users" class="icon-btn" title="Atualizar usuários">⟳</button>
-        </div>
-        <ul id="user-list" class="list small"></ul>
+        <h3>Usuários</h3>
+        <ul id="user-list"></ul>
+        <button id="refresh-users" class="small">Atualizar usuários</button>
       </div>
     </aside>
 
-    <main class="main">
-      <header class="main-header">
-        <div>
-          <h1 id="active-channel-title">Selecione um canal</h1>
-          <p class="muted">
-            Mensagens em tempo real via ZeroMQ + MessagePack. Histórico é carregado ao entrar no canal.
-          </p>
-        </div>
-        <div class="badge">UI</div>
+    <!-- Área principal -->
+    <section class="content">
+      <header>
+        <h2 id="active-channel-title">Selecione um canal</h2>
       </header>
 
-      <section id="messages" class="messages"></section>
+      <div id="messages" class="messages"></div>
 
-      <footer class="composer">
-        <input id="message-input" type="text" placeholder="Digite uma mensagem..." />
-        <button id="send-btn" class="primary-btn">Enviar</button>
-      </footer>
-    </main>
+      <form id="msg-form" class="msg-form">
+        <input id="message-input" placeholder="Digite uma mensagem..." />
+        <button id="send-btn" type="submit">Enviar</button>
+      </form>
 
-    <aside class="sidepanel">
-      <div class="section">
-        <div class="section-header">
-          <span>Eventos recentes</span>
-        </div>
-        <ul id="event-log" class="list small events"></ul>
+      <div class="events">
+        <h4>🧩 Eventos</h4>
+        <ul id="event-log"></ul>
       </div>
-    </aside>
+
+      <!-- Debug central -->
+      <div class="debug">
+        <h3>🧠 Painel de Debug</h3>
+
+        <div id="tab-events" class="tab-content active">
+          <button id="refresh-status" class="small">Atualizar Status</button>
+          <ul id="status-list"></ul>
+
+          <h4>Últimos eventos</h4>
+          <ul id="debug-events-list"></ul>
+
+          <h4>Payload MsgPack</h4>
+          <pre id="debug-payload-viewer">// Nenhuma mensagem recebida ainda.</pre>
+        </div>
+
+        <div id="tab-logs" class="tab-content">
+          <pre id="debug-log-output">// Logs técnicos do sistema aparecerão aqui.</pre>
+        </div>
+
+        <div id="tab-msgpack" class="tab-content">
+          <pre id="msgpack-raw">// Dados MessagePack brutos aparecerão aqui.</pre>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script src="app.js"></script>
