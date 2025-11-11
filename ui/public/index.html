@@ -12,7 +12,7 @@
   <!-- Overlay de Login -->
   <div id="login-overlay" class="overlay active">
     <div class="overlay-box">
-      <h2>🔐 Entrar no Chat</h2>
+      <h2>Entrar no Chat</h2>
       <input type="text" id="login-username" placeholder="Digite seu nome..." />
       <button id="login-btn">Entrar</button>
     </div>
@@ -57,17 +57,18 @@
       </form>
 
       <div class="events">
-        <h4>🧩 Eventos</h4>
+        <h4>Eventos</h4>
         <ul id="event-log"></ul>
       </div>
 
       <!-- Debug central -->
       <div class="debug">
-        <h3>🧠 Painel de Debug</h3>
+        <h3>Painel de Debug</h3>
 
         <div class="tabs">
           <button class="tab active" data-tab="events">Eventos</button>
-          <button class="tab" data-tab="clocks">Relógios</button>
+          <button class="tab" data-tab="clocks">Relogios</button>
+          <button class="tab" data-tab="tests">Testes</button>
           <button class="tab" data-tab="msgpack">MsgPack</button>
         </div>
 
@@ -84,18 +85,60 @@
 
         <div id="tab-clocks" class="tab-content">
           <div class="info-box">
-            <strong>🕐 Relógio Lógico do Cliente:</strong>
+            <strong>Relogio Logico do Cliente:</strong>
             <span id="client-clock">0</span>
           </div>
           <button id="refresh-servers" class="small">Atualizar Servidores</button>
           <h4>Servidores Registrados</h4>
           <ul id="servers-list"></ul>
           <h4>Coordenador</h4>
-          <div id="coordinator-info" class="info-box">Aguardando informações...</div>
+          <div id="coordinator-info" class="info-box">Aguardando informacoes...</div>
+        </div>
+
+        <div id="tab-tests" class="tab-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h4 style="margin: 0;">Testes Automatizados</h4>
+            <button id="run-tests" class="test-button">Executar Testes</button>
+          </div>
+          
+          <div id="tests-status" class="tests-status-box">
+            <div class="tests-status-content">
+              <span id="tests-status-icon">[*]</span>
+              <span id="tests-status-text">Pronto para executar testes</span>
+            </div>
+            <div id="tests-progress" class="tests-progress-bar" style="display: none;">
+              <div id="tests-progress-fill" class="tests-progress-fill"></div>
+            </div>
+          </div>
+          
+          <div id="tests-summary" class="tests-summary-box" style="display: none;">
+            <div class="tests-summary-content">
+              <div class="tests-summary-stat">
+                <span class="tests-summary-label">Total:</span>
+                <span id="tests-total" class="tests-summary-value">0</span>
+              </div>
+              <div class="tests-summary-stat">
+                <span class="tests-summary-label">Passaram:</span>
+                <span id="tests-passed" class="tests-summary-value tests-passed">0</span>
+              </div>
+              <div class="tests-summary-stat">
+                <span class="tests-summary-label">Falharam:</span>
+                <span id="tests-failed" class="tests-summary-value tests-failed">0</span>
+              </div>
+              <div class="tests-summary-stat">
+                <span class="tests-summary-label">Taxa de Sucesso:</span>
+                <span id="tests-success-rate" class="tests-summary-value">0%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div id="tests-results" class="tests-results-container" style="display: none;"></div>
+          
+          <div id="tests-timestamp" class="tests-timestamp" style="display: none;"></div>
         </div>
 
         <div id="tab-msgpack" class="tab-content">
-          <pre id="msgpack-raw">// Dados MessagePack brutos aparecerão aqui.</pre>
+          <pre id="msgpack-raw">// Dados MessagePack brutos aparecerao aqui.</pre>
         </div>
       </div>
     </section>

@@ -133,8 +133,22 @@ def wait_for_service(service_name, max_wait=60, show_logs=True):
     show_logs_tail(service_name, lines=30)
     return False
 
-# ---------- Limpar containers antigos (opcional) ----------
+# ---------- Criar diretórios de dados para replicação (Parte 5) ----------
 print("=" * 70)
+print("CRIANDO DIRETÓRIOS DE DADOS PARA REPLICAÇÃO")
+print("=" * 70)
+import os
+data_dirs = [
+    "server/data/server_1",
+    "server/data/server_2",
+    "server/data/server_3",
+]
+for dir_path in data_dirs:
+    os.makedirs(dir_path, exist_ok=True)
+    print(f"   [OK] Diretorio criado: {dir_path}")
+
+# ---------- Limpar containers antigos (opcional) ----------
+print("\n" + "=" * 70)
 print("LIMPANDO CONTAINERS ANTIGOS")
 print("=" * 70)
 run_cmd(["docker", "compose", "down"], check=False)

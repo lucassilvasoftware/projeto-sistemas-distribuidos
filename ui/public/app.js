@@ -84,6 +84,11 @@ debugTabs.forEach((btn) => {
       updateClockDisplay();
       refreshServers();
     }
+    
+    // Atualiza informações quando a aba de testes é aberta
+    if (target === "tests") {
+      // Pode carregar resultados anteriores se houver
+    }
   });
 });
 
@@ -341,7 +346,7 @@ async function refreshStatus() {
     statusList.innerHTML = list
       .map(
         (c) =>
-          `<li>${c.status.startsWith("Up") ? "🟢" : "🔴"} <b>${c.name}</b> — ${
+          `<li>${c.status.startsWith("Up") ? "[OK]" : "[ERRO]"} <b>${c.name}</b> — ${
             c.status
           }</li>`
       )
@@ -390,8 +395,8 @@ async function refreshServers() {
         serversList.innerHTML = servers
           .map(
             (s) =>
-              `<li>🖥️ <b>${s.name}</b> — Rank: ${s.rank} ${
-                s.name === coordinator ? "👑 (Coordenador)" : ""
+              `<li>[SERVER] <b>${s.name}</b> — Rank: ${s.rank} ${
+                s.name === coordinator ? "[COORDENADOR]" : ""
               }</li>`
           )
           .join("");
@@ -410,13 +415,202 @@ async function refreshServers() {
 function updateCoordinatorInfo() {
   if (coordinatorInfo) {
     if (coordinator) {
-      coordinatorInfo.innerHTML = `<strong>👑 ${coordinator}</strong>`;
+      coordinatorInfo.innerHTML = `<strong>[COORDENADOR] ${coordinator}</strong>`;
       coordinatorInfo.style.background = "rgba(79, 70, 229, 0.2)";
     } else {
-      coordinatorInfo.textContent = "Aguardando eleição...";
+      coordinatorInfo.textContent = "Aguardando eleicao...";
       coordinatorInfo.style.background = "rgba(255, 255, 255, 0.05)";
     }
   }
+}
+
+// ---------- Testes Automatizados ----------
+async function runTests() {
+  const runTestsBtn = document.getElementById("run-tests");
+  const testsStatus = document.getElementById("tests-status");
+  const testsStatusIcon = document.getElementById("tests-status-icon");
+  const testsStatusText = document.getElementById("tests-status-text");
+  const testsResults = document.getElementById("tests-results");
+  const testsSummary = document.getElementById("tests-summary");
+  const testsProgress = document.getElementById("tests-progress");
+  const testsProgressFill = document.getElementById("tests-progress-fill");
+  const testsTimestamp = document.getElementById("tests-timestamp");
+  const testsTotal = document.getElementById("tests-total");
+  const testsPassed = document.getElementById("tests-passed");
+  const testsFailed = document.getElementById("tests-failed");
+  const testsSuccessRate = document.getElementById("tests-success-rate");
+  
+  if (!runTestsBtn || !testsStatus) return;
+  
+  // Estado: executando
+  runTestsBtn.disabled = true;
+  runTestsBtn.textContent = "Executando...";
+  testsStatusIcon.textContent = "...";
+  testsStatusIcon.style.color = "#fbbf24";
+  testsStatusText.textContent = "Executando testes...";
+  testsStatus.className = "tests-status-box tests-status-running";
+  testsProgress.style.display = "block";
+  testsResults.style.display = "none";
+  testsSummary.style.display = "none";
+  testsTimestamp.style.display = "none";
+  testsResults.innerHTML = "";
+  
+  // Simula progresso (animação)
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + 2, 90);
+    testsProgressFill.style.width = progress + "%";
+  }, 100);
+  
+  try {
+    const startTime = Date.now();
+    const response = await fetch("/api/tests");
+    
+    if (!response.ok) {
+      // Se a resposta não for OK, tenta parsear o erro
+      const errorData = await response.json().catch(() => ({ error: response.statusText }));
+      throw new Error(errorData.message || errorData.error || `Erro HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+    
+    clearInterval(progressInterval);
+    testsProgressFill.style.width = "100%";
+    
+    // Aguarda um pouco para mostrar 100%
+    await new Promise(resolve => setTimeout(resolve, 200));
+    testsProgress.style.display = "none";
+    
+    const passed = data.passed || 0;
+    const total = data.total || 0;
+    const failed = total - passed;
+    const successRate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+    
+    // Atualiza resumo
+    testsTotal.textContent = total;
+    testsPassed.textContent = passed;
+    testsFailed.textContent = failed;
+    testsSuccessRate.textContent = successRate + "%";
+    testsSummary.style.display = "block";
+    
+    // Estado: concluído
+    if (data.success && passed === total) {
+      testsStatusIcon.textContent = "[OK]";
+      testsStatusIcon.style.color = "#10b981";
+      testsStatusText.textContent = `Todos os testes passaram! (${duration}s)`;
+      testsStatus.className = "tests-status-box tests-status-success";
+    } else if (passed > 0) {
+      testsStatusIcon.textContent = "[!]";
+      testsStatusIcon.style.color = "#f59e0b";
+      testsStatusText.textContent = `${passed}/${total} testes passaram (${duration}s)`;
+      testsStatus.className = "tests-status-box tests-status-warning";
+    } else {
+      testsStatusIcon.textContent = "[X]";
+      testsStatusIcon.style.color = "#ef4444";
+      testsStatusText.textContent = `Nenhum teste passou (${duration}s)`;
+      testsStatus.className = "tests-status-box tests-status-error";
+    }
+    
+    // Mostra resultados dos testes
+    let resultsHTML = "<div class='tests-results-header'>Resultados Detalhados:</div>";
+    resultsHTML += "<div class='tests-list'>";
+    
+    // Ordena testes: falhados primeiro
+    const testEntries = Object.entries(data.tests || {}).sort((a, b) => {
+      if (a[1].passed !== b[1].passed) {
+        return a[1].passed ? 1 : -1;
+      }
+      return a[0].localeCompare(b[0]);
+    });
+    
+    for (const [testName, testData] of testEntries) {
+      const testClass = testData.passed ? "test-item-passed" : "test-item-failed";
+      const statusIcon = testData.passed ? "[OK]" : "[X]";
+      const statusText = testData.passed ? "PASSOU" : "FALHOU";
+      
+      resultsHTML += `<div class="test-item ${testClass}">`;
+      resultsHTML += `<div class="test-item-header">`;
+      resultsHTML += `<span class="test-status-icon">${statusIcon}</span>`;
+      resultsHTML += `<span class="test-name">${formatTestName(testName)}</span>`;
+      resultsHTML += `<span class="test-status-badge ${testData.passed ? 'test-badge-passed' : 'test-badge-failed'}">${statusText}</span>`;
+      resultsHTML += `</div>`;
+      resultsHTML += `<div class="test-message">${testData.message || "Sem mensagem"}</div>`;
+      resultsHTML += `</div>`;
+    }
+    resultsHTML += "</div>";
+    testsResults.innerHTML = resultsHTML;
+    testsResults.style.display = "block";
+    
+    // Timestamp
+    const now = new Date();
+    testsTimestamp.textContent = `Executado em ${now.toLocaleTimeString()} - ${now.toLocaleDateString()}`;
+    testsTimestamp.style.display = "block";
+    
+  } catch (e) {
+    clearInterval(progressInterval);
+    testsProgress.style.display = "none";
+    
+    testsStatusIcon.textContent = "[X]";
+    testsStatusIcon.style.color = "#ef4444";
+    
+    // Tenta extrair mensagem de erro mais detalhada
+    let errorMessage = e.message;
+    let errorDetails = "";
+    
+    try {
+      if (e.response) {
+        const errorData = await e.response.json();
+        errorMessage = errorData.message || errorData.error || e.message;
+        errorDetails = errorData.details || errorData.stdout || errorData.stderr || "";
+      }
+    } catch (parseErr) {
+      // Ignora erros ao parsear resposta de erro
+    }
+    
+    testsStatusText.textContent = `Erro ao executar testes: ${errorMessage}`;
+    testsStatus.className = "tests-status-box tests-status-error";
+    
+    let errorHTML = `<div class="test-item test-item-failed">
+      <div class="test-item-header">
+        <span class="test-status-icon">[X]</span>
+        <span class="test-name">Erro de Execucao</span>
+      </div>
+      <div class="test-message" style="color: #ef4444;">${errorMessage}</div>`;
+    
+    if (errorDetails) {
+      errorHTML += `<div class="test-message" style="color: #f59e0b; margin-top: 5px; font-size: 10px;">${errorDetails.substring(0, 500)}</div>`;
+    }
+    
+    errorHTML += `</div>`;
+    testsResults.innerHTML = errorHTML;
+    testsResults.style.display = "block";
+  } finally {
+    runTestsBtn.disabled = false;
+    runTestsBtn.textContent = "Executar Testes";
+  }
+}
+
+// Formata nome do teste para exibição
+function formatTestName(name) {
+  const names = {
+    "reference": "Serviço de Referência",
+    "servers_status": "Status dos Servidores",
+    "server_connection": "Conexão do Servidor",
+    "election": "Eleição de Coordenador",
+    "bots_running": "Bots em Execução",
+    "bot_messages": "Mensagens dos Bots",
+    "channels": "Canais",
+    "logical_clock": "Relógio Lógico",
+    "replication": "Replicação de Dados"
+  };
+  return names[name] || name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Adiciona event listener para o botao de testes
+const runTestsBtn = document.getElementById("run-tests");
+if (runTestsBtn) {
+  runTestsBtn.addEventListener("click", runTests);
 }
 
 refreshServersBtn?.addEventListener("click", refreshServers);

@@ -526,3 +526,243 @@ button.small:hover {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---------- Estilos para Testes Automatizados ---------- */
+
+.test-button {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-weight: 500;
+}
+
+.test-button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.5);
+  transform: translateY(-1px);
+}
+
+.test-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tests-status-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+}
+
+.tests-status-running {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.tests-status-success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.tests-status-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.tests-status-error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.tests-status-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  margin-bottom: 8px;
+}
+
+#tests-status-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tests-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.tests-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.tests-summary-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.tests-summary-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.tests-summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tests-summary-label {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tests-summary-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.tests-summary-value.tests-passed {
+  color: #10b981;
+}
+
+.tests-summary-value.tests-failed {
+  color: #ef4444;
+}
+
+.tests-results-container {
+  margin-top: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tests-results-header {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.test-item {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+}
+
+.test-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateX(2px);
+}
+
+.test-item-passed {
+  border-left: 3px solid #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.test-item-failed {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.test-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.test-status-icon {
+  font-size: 16px;
+  font-weight: bold;
+  width: 20px;
+  text-align: center;
+}
+
+.test-item-passed .test-status-icon {
+  color: #10b981;
+}
+
+.test-item-failed .test-status-icon {
+  color: #ef4444;
+}
+
+.test-name {
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.test-status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.test-badge-passed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.test-badge-failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.test-message {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  margin-left: 28px;
+  line-height: 1.4;
+}
+
+.tests-timestamp {
+  margin-top: 10px;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive para telas menores */
+@media (max-width: 600px) {
+  .tests-summary-content {
+    grid-template-columns: 1fr;
+  }
+}

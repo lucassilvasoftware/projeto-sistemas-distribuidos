@@ -28,8 +28,10 @@ services:
     depends_on:
       - reference
       - proxy
+    # Cada servidor tem seu próprio diretório de dados (replicação via Pub/Sub)
     volumes:
-      - ./server/data:/app/data
+      - ./server/data/server_1:/app/data
+      - ./scripts:/scripts:ro  # Volume para scripts de teste
     restart: unless-stopped
 
   server_2:
@@ -42,8 +44,9 @@ services:
     depends_on:
       - reference
       - proxy
+    # Cada servidor tem seu próprio diretório de dados (replicação via Pub/Sub)
     volumes:
-      - ./server/data:/app/data
+      - ./server/data/server_2:/app/data
     restart: unless-stopped
 
   server_3:
@@ -56,8 +59,9 @@ services:
     depends_on:
       - reference
       - proxy
+    # Cada servidor tem seu próprio diretório de dados (replicação via Pub/Sub)
     volumes:
-      - ./server/data:/app/data
+      - ./server/data/server_3:/app/data
     restart: unless-stopped
 
   client:
@@ -97,4 +101,8 @@ services:
       - proxy
     ports:
       - "8080:8080"
+    # Monta volume para acessar scripts e executar testes no host
+    volumes:
+      - ./scripts:/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped

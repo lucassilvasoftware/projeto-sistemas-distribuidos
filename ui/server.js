@@ -118,7 +118,7 @@ function broadcast(event, data) {
     sub.connect(PROXY_SUB_ADDR);
     sub.subscribe(); // todos os tópicos (incluindo "servers")
 
-    console.log("🛰️ [UI][SUB] Conectado ao proxy em", PROXY_SUB_ADDR);
+    console.log("[UI][SUB] Conectado ao proxy em", PROXY_SUB_ADDR);
 
     // Cada mensagem do broker vem como [topicBuf, payloadBuf]
     for await (const [topicBuf, payloadBuf] of sub) {
@@ -143,11 +143,11 @@ function broadcast(event, data) {
         // Inclui mensagens de canais e anúncios de coordenador
         broadcast("message", enriched);
       } catch (err) {
-        console.error("🛰️ [UI][SUB] Erro ao decodificar MessagePack:", err);
+        console.error("[UI][SUB] Erro ao decodificar MessagePack:", err);
       }
     }
   } catch (err) {
-    console.error("🛰️ [UI][SUB] Erro no loop do subscriber:", err);
+    console.error("[UI][SUB] Erro no loop do subscriber:", err);
   }
 })();
 
@@ -336,8 +336,211 @@ app.get("/api/clock", (_req, res) => {
   res.json({ logicalClock });
 });
 
+// ---------- Testes Automatizados ----------
+app.get("/api/tests", async (_req, res) => {
+  try {
+    const { spawn } = await import("child_process");
+    const fs = await import("fs");
+    const path = await import("path");
+    
+    // Estratégia: Executar testes via Docker usando docker compose run
+    // Isso cria um container temporário com Python que tem acesso ao volume de scripts
+    // e à rede Docker para acessar os outros containers
+    
+    console.log("[UI][API][tests] Iniciando execucao de testes...");
+    
+    let proc;
+    const dockerSock = "/var/run/docker.sock";
+    
+    if (fs.existsSync(dockerSock)) {
+      // Estamos dentro do Docker, vamos executar o teste via docker exec no server_1
+      // O server_1 tem Python, as dependências (pyzmq, msgpack) e acesso à rede
+      console.log("[UI][API][tests] Executando testes via docker exec no server_1...");
+      
+      // O script test.py se conecta a localhost, mas dentro do Docker precisa usar
+      // os nomes dos serviços. Por enquanto, vamos executar e ver o que acontece.
+      // Se falhar, podemos ajustar o script para usar variáveis de ambiente.
+      
+      // Passa variável de ambiente para o script saber que está no Docker
+      proc = spawn("docker", [
+        "exec",
+        "-e", "REFERENCE_HOST=reference",
+        "server_1",
+        "python3",
+        "/scripts/test.py",
+        "--json"
+      ], {
+        env: { ...process.env },
+      });
+      
+    } else {
+      // Não estamos no Docker, tenta executar localmente se Python estiver disponível
+      console.log("[UI][API][tests] Tentando executar localmente...");
+      
+      const testScript = "/scripts/test.py";
+      if (!fs.existsSync(testScript)) {
+        return res.status(500).json({
+          error: "Script nao encontrado",
+          message: `Script nao encontrado em ${testScript}`,
+          success: false,
+          passed: 0,
+          total: 0,
+          tests: {},
+        });
+      }
+      
+      // Tenta executar com python3
+      proc = spawn("python3", [testScript, "--json"], {
+        env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      });
+    }
+    
+    let stdout = "";
+    let stderr = "";
+    let hasError = false;
+    
+    proc.stdout.on("data", (data) => {
+      const text = data.toString();
+      stdout += text;
+      // Log em tempo real para debug
+      if (text.trim()) {
+        console.log("[UI][API][tests] Stdout:", text.trim());
+      }
+    });
+    
+    proc.stderr.on("data", (data) => {
+      const text = data.toString();
+      stderr += text;
+      // Log em tempo real para debug
+      if (text.trim() && !text.includes("WARNING")) {
+        console.error("[UI][API][tests] Stderr:", text.trim());
+      }
+    });
+    
+    proc.on("error", (err) => {
+      hasError = true;
+      console.error("[UI][API][tests] Erro ao executar processo:", err);
+      return res.status(500).json({
+        error: "Erro ao executar testes",
+        message: err.message,
+        details: "Verifique se Docker esta rodando e se o script test.py existe",
+        success: false,
+        passed: 0,
+        total: 0,
+        tests: {},
+      });
+    });
+    
+    proc.on("close", (code) => {
+      if (hasError) return;
+      
+      console.log(`[UI][API][tests] Processo finalizado com codigo: ${code}`);
+      console.log(`[UI][API][tests] Stdout length: ${stdout.length}, Stderr length: ${stderr.length}`);
+      
+      try {
+        // Tenta encontrar JSON no stdout
+        let jsonResult = null;
+        
+        // Método 1: Procura por objeto JSON completo
+        const jsonMatch = stdout.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            jsonResult = JSON.parse(jsonMatch[0]);
+            console.log("[UI][API][tests] JSON encontrado e parseado com sucesso");
+            return res.json(jsonResult);
+          } catch (e) {
+            console.error("[UI][API][tests] Erro ao parsear JSON encontrado:", e.message);
+          }
+        }
+        
+        // Método 2: Procura na última linha que parece JSON
+        const lines = stdout.split("\n").filter(line => line.trim());
+        for (let i = lines.length - 1; i >= 0; i--) {
+          const line = lines[i].trim();
+          if (line.startsWith("{") && line.endsWith("}")) {
+            try {
+              jsonResult = JSON.parse(line);
+              console.log("[UI][API][tests] JSON encontrado na ultima linha");
+              return res.json(jsonResult);
+            } catch (e) {
+              // Continua procurando
+            }
+          }
+        }
+        
+        // Método 3: Tenta parsear todo o stdout como JSON
+        if (stdout.trim()) {
+          try {
+            jsonResult = JSON.parse(stdout.trim());
+            console.log("[UI][API][tests] JSON parseado do stdout completo");
+            return res.json(jsonResult);
+          } catch (e) {
+            // Não é JSON válido
+          }
+        }
+        
+        // Se não encontrou JSON, retorna erro com detalhes
+        console.error("[UI][API][tests] Nenhum JSON valido encontrado");
+        console.error("[UI][API][tests] Primeiros 1000 chars do stdout:", stdout.substring(0, 1000));
+        console.error("[UI][API][tests] Primeiros 500 chars do stderr:", stderr.substring(0, 500));
+        
+        return res.status(500).json({
+          error: "Erro ao executar testes",
+          message: "Nenhum JSON valido encontrado na saida",
+          code: code,
+          stdout: stdout.substring(0, 1000),
+          stderr: stderr.substring(0, 500),
+          success: false,
+          passed: 0,
+          total: 0,
+          tests: {},
+        });
+        
+      } catch (err) {
+        console.error("[UI][API][tests] Erro ao processar resultado:", err);
+        return res.status(500).json({
+          error: "Erro ao processar resultados",
+          message: err.message,
+          stdout: stdout.substring(0, 500),
+          stderr: stderr.substring(0, 500),
+          success: false,
+          passed: 0,
+          total: 0,
+          tests: {},
+        });
+      }
+    });
+    
+    // Timeout de 60 segundos
+    setTimeout(() => {
+      if (!proc.killed) {
+        proc.kill();
+        return res.status(500).json({
+          error: "Timeout",
+          message: "Testes demoraram mais de 60 segundos para executar",
+          success: false,
+          passed: 0,
+          total: 0,
+          tests: {},
+        });
+      }
+    }, 60000);
+    
+  } catch (err) {
+    console.error("[UI][API][tests] Erro geral:", err);
+    return res.status(500).json({
+      error: "Erro ao executar testes",
+      message: err.message,
+      success: false,
+      passed: 0,
+      total: 0,
+      tests: {},
+    });
+  }
+});
+
 // ---------- Inicialização ----------
 const PORT = 8080;
 app.listen(PORT, () => {
-  console.log(`🌐 [UI] Servidor iniciado em http://localhost:${PORT}`);
+  console.log(`[UI] Servidor iniciado em http://localhost:${PORT}`);
 });

@@ -1,0 +1,42 @@
+[
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 17:13:17"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-11 17:13:17"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 17:14:18"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 17:23:36"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-11 17:23:36"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 17:24:01"
+    },
+    {
+        "user": "Pedro",
+        "timestamp": "2025-11-11 17:25:25"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 17:34:54"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-11 17:34:54"
+    },
+    {
+        "user": "Pedro",
+        "timestamp": "2025-11-11 17:35:19"
+    }
+]
