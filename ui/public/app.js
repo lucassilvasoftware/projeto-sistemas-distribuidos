@@ -370,6 +370,19 @@ async function refreshServers() {
       clientClockEl.textContent = data.logicalClock || 0;
     }
     
+    // Se não temos coordenador mas temos servidores, assume que o servidor com menor rank é o coordenador
+    // (Isso é uma heurística - o coordenador real é o servidor com menor rank que está ativo)
+    if (!coordinator && servers.length > 0) {
+      // Ordena servidores por rank (menor rank = maior prioridade)
+      const sortedServers = [...servers].sort((a, b) => (a.rank || 999) - (b.rank || 999));
+      const candidateCoordinator = sortedServers[0];
+      if (candidateCoordinator) {
+        coordinator = candidateCoordinator.name;
+        console.log(`[UI] Coordenador inferido (menor rank): ${coordinator}`);
+        updateCoordinatorInfo();
+      }
+    }
+    
     if (serversList) {
       if (servers.length === 0) {
         serversList.innerHTML = "<li>Nenhum servidor registrado</li>";
