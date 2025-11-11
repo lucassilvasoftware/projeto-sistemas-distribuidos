@@ -1,21 +1,26 @@
-version: "3"
 services:
+  proxy:
+    build:
+      context: ./proxy
+    container_name: proxy
+    ports:
+      - "5557:5557"
+      - "5558:5558"
+
   server:
     build:
-      context: .
-      dockerfile: Dockerfile.server
-    container_name: server
-    ports:
-      - "5555:5555"
-    volumes:
-      - ./server:/app
+      context: ./server
+    deploy:
+      replicas: 3
+    depends_on:
+      - proxy
 
   client:
     build:
-      context: .
-      dockerfile: Dockerfile.client
+      context: ./client
     container_name: client
-    depends_on:
-      - server
     stdin_open: true
     tty: true
+    depends_on:
+      - proxy
+      - server
