@@ -1,6 +1,15 @@
-version: "3.8"
-
 services:
+  reference:
+    build:
+      context: ./reference
+      dockerfile: Dockerfile
+      # Para usar Debian (se Alpine falhar), descomente a linha abaixo:
+      # dockerfile: Dockerfile.debian
+    container_name: reference
+    ports:
+      - "5559:5559"
+    restart: unless-stopped
+
   proxy:
     build: ./proxy
     container_name: proxy
@@ -9,10 +18,43 @@ services:
       - "5558:5558" # saída para SUB dos clientes
     restart: unless-stopped
 
-  server:
+  server_1:
     build: ./server
-    container_name: server
+    container_name: server_1
+    hostname: server_1
+    environment:
+      - SERVER_NAME=server_1
+      - REFERENCE_HOST=reference
     depends_on:
+      - reference
+      - proxy
+    volumes:
+      - ./server/data:/app/data
+    restart: unless-stopped
+
+  server_2:
+    build: ./server
+    container_name: server_2
+    hostname: server_2
+    environment:
+      - SERVER_NAME=server_2
+      - REFERENCE_HOST=reference
+    depends_on:
+      - reference
+      - proxy
+    volumes:
+      - ./server/data:/app/data
+    restart: unless-stopped
+
+  server_3:
+    build: ./server
+    container_name: server_3
+    hostname: server_3
+    environment:
+      - SERVER_NAME=server_3
+      - REFERENCE_HOST=reference
+    depends_on:
+      - reference
       - proxy
     volumes:
       - ./server/data:/app/data
@@ -23,24 +65,35 @@ services:
     container_name: client
     depends_on:
       - proxy
-      - server
+      - server_1
     stdin_open: true
     tty: true
 
-  bot:
+  bot_1:
     build: ./bot
-    container_name: bot
+    container_name: bot_1
     environment:
       - BOT_NAME=bot_1
+      - SERVER_HOST=server_1
     depends_on:
-      - server
+      - server_1
+    restart: unless-stopped
+
+  bot_2:
+    build: ./bot
+    container_name: bot_2
+    environment:
+      - BOT_NAME=bot_2
+      - SERVER_HOST=server_1
+    depends_on:
+      - server_1
     restart: unless-stopped
 
   ui:
     build: ./ui
     container_name: ui
     depends_on:
-      - server
+      - server_1
       - proxy
     ports:
       - "8080:8080"

@@ -1,0 +1,47 @@
+# Dockerfile alternativo usando Debian (mais compatível com CGO)
+FROM golang:1.21-bullseye AS builder
+
+# Habilita CGO explicitamente (necessário para zmq4)
+ENV CGO_ENABLED=1
+
+# Instala dependências de desenvolvimento do ZeroMQ
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libzmq3-dev \
+    pkg-config \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copia arquivos de dependências
+COPY go.mod go.sum* ./
+
+# Baixa dependências
+RUN go mod download
+
+# Copia código fonte
+COPY . .
+
+# Gera go.sum
+RUN go mod tidy
+
+# Compila
+RUN go build -v -o reference reference.go
+
+FROM debian:bullseye-slim
+
+# Instala apenas bibliotecas runtime
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libzmq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /app/reference .
+
+CMD ["./reference"]
+

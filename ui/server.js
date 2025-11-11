@@ -7,8 +7,22 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-const SERVER_ADDR = "tcp://server:5555";
+const SERVER_ADDR = "tcp://server_1:5555";
 const PROXY_SUB_ADDR = "tcp://proxy:5558";
+const REFERENCE_ADDR = "tcp://reference:5559";
+
+// ---------- Relógio lógico do cliente UI ----------
+let logicalClock = 0;
+
+function incrementClock() {
+  logicalClock += 1;
+  return logicalClock;
+}
+
+function updateClock(receivedClock) {
+  logicalClock = Math.max(logicalClock, receivedClock) + 1;
+  return logicalClock;
+}
 
 // ---------- RPC genérico via MessagePack ----------
 async function rpc(service, data = {}) {
@@ -19,6 +33,10 @@ async function rpc(service, data = {}) {
   );
   sock.connect(SERVER_ADDR);
 
+  // Adiciona relógio lógico antes de enviar
+  const clock = incrementClock();
+  data.clock = clock;
+  
   const payload = { service, data };
   const encoded = encode(payload);
 
@@ -28,9 +46,39 @@ async function rpc(service, data = {}) {
   const [replyBuf] = await sock.receive();
   const reply = decode(replyBuf);
 
+  // Atualiza relógio lógico ao receber resposta
+  const receivedClock = reply?.data?.clock || 0;
+  if (receivedClock > 0) {
+    updateClock(receivedClock);
+  }
+
   console.log(`[UI][RPC] Resposta (decodificada) <-`, reply);
   sock.close();
 
+  return reply;
+}
+
+// ---------- RPC para serviço de referência ----------
+async function rpcReference(service, data = {}) {
+  const sock = new zmq.Request();
+  sock.connect(REFERENCE_ADDR);
+
+  const clock = incrementClock();
+  data.clock = clock;
+
+  const payload = { service, data };
+  const encoded = encode(payload);
+  await sock.send(encoded);
+
+  const [replyBuf] = await sock.receive();
+  const reply = decode(replyBuf);
+
+  const receivedClock = reply?.data?.clock || 0;
+  if (receivedClock > 0) {
+    updateClock(receivedClock);
+  }
+
+  sock.close();
   return reply;
 }
 
@@ -68,7 +116,7 @@ function broadcast(event, data) {
   try {
     const sub = new zmq.Subscriber();
     sub.connect(PROXY_SUB_ADDR);
-    sub.subscribe(); // todos os tópicos
+    sub.subscribe(); // todos os tópicos (incluindo "servers")
 
     console.log("🛰️ [UI][SUB] Conectado ao proxy em", PROXY_SUB_ADDR);
 
@@ -76,7 +124,13 @@ function broadcast(event, data) {
     for await (const [topicBuf, payloadBuf] of sub) {
       try {
         const topic = topicBuf.toString();
-        const decoded = decode(payloadBuf); // {user, channel, message, timestamp}
+        const decoded = decode(payloadBuf); // {user, channel, message, timestamp, clock, service, coordinator}
+
+        // Atualiza relógio lógico ao receber mensagem
+        const receivedClock = decoded.clock || 0;
+        if (receivedClock > 0) {
+          updateClock(receivedClock);
+        }
 
         const enriched = {
           topic,
@@ -86,6 +140,7 @@ function broadcast(event, data) {
         console.log("[UI][SUB] Recebido do proxy:", enriched);
 
         // Envia para todos os clientes SSE (usado no chat + debug)
+        // Inclui mensagens de canais e anúncios de coordenador
         broadcast("message", enriched);
       } catch (err) {
         console.error("🛰️ [UI][SUB] Erro ao decodificar MessagePack:", err);
@@ -151,7 +206,7 @@ app.post("/api/channel", async (req, res) => {
   }
 });
 
-// Publicar mensagem
+// Publicar mensagem em canal
 app.post("/api/publish", async (req, res) => {
   const { user, channel, message, timestamp } = req.body;
   if (!user || !channel || !message) {
@@ -168,6 +223,27 @@ app.post("/api/publish", async (req, res) => {
     return res.json(reply);
   } catch (err) {
     console.error("[UI][API][publish] Erro:", err);
+    return res.status(500).json({ error: "failed" });
+  }
+});
+
+// Enviar mensagem privada
+app.post("/api/message", async (req, res) => {
+  const { src, dst, message, timestamp } = req.body;
+  if (!src || !dst || !message) {
+    return res.status(400).json({ error: "src, dst, message required" });
+  }
+
+  try {
+    const reply = await rpc("message", {
+      src,
+      dst,
+      message,
+      timestamp: timestamp || Date.now() / 1000,
+    });
+    return res.json(reply);
+  } catch (err) {
+    console.error("[UI][API][message] Erro:", err);
     return res.status(500).json({ error: "failed" });
   }
 });
@@ -237,6 +313,27 @@ app.get("/api/status", (req, res) => {
 
     res.json(list);
   });
+});
+
+// ---------- Informações dos servidores (do serviço de referência) ----------
+app.get("/api/servers", async (_req, res) => {
+  try {
+    const reply = await rpcReference("list", {
+      timestamp: Date.now() / 1000,
+    });
+    return res.json({
+      servers: reply?.data?.list || [],
+      logicalClock: logicalClock,
+    });
+  } catch (err) {
+    console.error("[UI][API][servers] Erro:", err);
+    return res.status(500).json({ error: "failed" });
+  }
+});
+
+// ---------- Relógio lógico do cliente ----------
+app.get("/api/clock", (_req, res) => {
+  res.json({ logicalClock });
 });
 
 // ---------- Inicialização ----------

@@ -33,6 +33,10 @@ const debugEventsList = document.getElementById("debug-events-list");
 const debugPayloadViewer = document.getElementById("debug-payload-viewer");
 const debugLogOutput = document.getElementById("debug-log-output");
 const msgpackRaw = document.getElementById("msgpack-raw");
+const clientClockEl = document.getElementById("client-clock");
+const refreshServersBtn = document.getElementById("refresh-servers");
+const serversList = document.getElementById("servers-list");
+const coordinatorInfo = document.getElementById("coordinator-info");
 
 // Logs buttons
 const startLogsBtn = document.getElementById("start-logs");
@@ -43,6 +47,7 @@ let currentUser = null;
 let activeChannel = null;
 let debugLogSource = null;
 let debugMessages = [];
+let coordinator = null;
 
 // ---------- Utils ----------
 function logEvent(text) {
@@ -73,6 +78,12 @@ debugTabs.forEach((btn) => {
     debugContents.forEach((c) => c.classList.remove("active"));
     const pane = document.getElementById(`tab-${target}`);
     if (pane) pane.classList.add("active");
+    
+    // Atualiza informações quando a aba de relógios é aberta
+    if (target === "clocks") {
+      updateClockDisplay();
+      refreshServers();
+    }
   });
 });
 
@@ -246,7 +257,38 @@ messageInput.addEventListener("keydown", (e) => {
 
 // ---------- Renderizar mensagens ----------
 function renderMessage(msg, forcedChannel = null) {
-  const { topic, user, channel, message, timestamp } = msg;
+  const { topic, user, channel, message, timestamp, clock, src, dst } = msg;
+  
+  // Mensagens privadas são renderizadas sempre (não dependem de canal ativo)
+  if (dst) {
+    // É mensagem privada
+    const div = document.createElement("div");
+    div.classList.add("msg", "private");
+    const sender = src || user;
+    if (sender === currentUser) div.classList.add("self");
+    if ((sender || "").toLowerCase().includes("bot")) div.classList.add("bot");
+
+    const meta = document.createElement("div");
+    meta.classList.add("meta");
+    const timeStr = new Date(
+      (timestamp || Date.now() / 1000) * 1000
+    ).toLocaleTimeString();
+    const clockStr = clock !== undefined ? ` [C:${clock}]` : "";
+    const direction = sender === currentUser ? `→ ${dst}` : `${sender} → você`;
+    meta.innerHTML = `<span class="user">[PRIVADA] ${direction}</span> <span>${timeStr}${clockStr}</span>`;
+    div.append(meta);
+
+    const txt = document.createElement("div");
+    txt.classList.add("text");
+    txt.textContent = message;
+    div.append(txt);
+
+    messagesEl.append(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return;
+  }
+  
+  // Mensagem de canal
   const ch = forcedChannel || channel || topic;
   if (!ch || ch !== activeChannel) return;
 
@@ -257,9 +299,11 @@ function renderMessage(msg, forcedChannel = null) {
 
   const meta = document.createElement("div");
   meta.classList.add("meta");
-  meta.innerHTML = `<span class="user">${user}</span> #${ch} <span>${new Date(
+  const timeStr = new Date(
     (timestamp || Date.now() / 1000) * 1000
-  ).toLocaleTimeString()}</span>`;
+  ).toLocaleTimeString();
+  const clockStr = clock !== undefined ? ` [C:${clock}]` : "";
+  meta.innerHTML = `<span class="user">${user}</span> #${ch} <span>${timeStr}${clockStr}</span>`;
   div.append(meta);
 
   const txt = document.createElement("div");
@@ -277,7 +321,16 @@ es.addEventListener("message", (e) => {
   try {
     const data = JSON.parse(e.data);
     pushDebugMessage(data);
-    renderMessage(data);
+    
+    // Verifica se é anúncio de coordenador
+    if (data.topic === "servers" && data.service === "election" && data.data?.coordinator) {
+      coordinator = data.data.coordinator;
+      updateCoordinatorInfo();
+      logEvent(`Novo coordenador eleito: ${coordinator}`);
+    } else if (data.dst || data.channel || (data.topic && data.topic !== "servers")) {
+      // Renderiza mensagens privadas (dst) ou de canais, mas não anúncios de servidores
+      renderMessage(data);
+    }
   } catch {}
 });
 
@@ -296,17 +349,81 @@ async function refreshStatus() {
   } catch {}
 }
 
+// ---------- Relógios e Servidores ----------
+async function updateClockDisplay() {
+  try {
+    const data = await fetchJSON("/api/clock");
+    if (clientClockEl) {
+      clientClockEl.textContent = data.logicalClock || 0;
+    }
+  } catch (e) {
+    console.error("Erro ao atualizar relógio:", e);
+  }
+}
+
+async function refreshServers() {
+  try {
+    const data = await fetchJSON("/api/servers");
+    const servers = data.servers || [];
+    
+    if (clientClockEl) {
+      clientClockEl.textContent = data.logicalClock || 0;
+    }
+    
+    if (serversList) {
+      if (servers.length === 0) {
+        serversList.innerHTML = "<li>Nenhum servidor registrado</li>";
+      } else {
+        serversList.innerHTML = servers
+          .map(
+            (s) =>
+              `<li>🖥️ <b>${s.name}</b> — Rank: ${s.rank} ${
+                s.name === coordinator ? "👑 (Coordenador)" : ""
+              }</li>`
+          )
+          .join("");
+      }
+    }
+    
+    updateCoordinatorInfo();
+  } catch (e) {
+    console.error("Erro ao atualizar servidores:", e);
+    if (serversList) {
+      serversList.innerHTML = "<li>Erro ao carregar servidores</li>";
+    }
+  }
+}
+
+function updateCoordinatorInfo() {
+  if (coordinatorInfo) {
+    if (coordinator) {
+      coordinatorInfo.innerHTML = `<strong>👑 ${coordinator}</strong>`;
+      coordinatorInfo.style.background = "rgba(79, 70, 229, 0.2)";
+    } else {
+      coordinatorInfo.textContent = "Aguardando eleição...";
+      coordinatorInfo.style.background = "rgba(255, 255, 255, 0.05)";
+    }
+  }
+}
+
+refreshServersBtn?.addEventListener("click", refreshServers);
+
+// Atualiza relógio a cada segundo
+setInterval(updateClockDisplay, 1000);
+setInterval(refreshServers, 5000); // Atualiza servidores a cada 5 segundos
+
 // ---------- Debug: eventos + MessagePack ----------
 function pushDebugMessage(msg) {
   debugMessages.unshift(msg);
   if (debugMessages.length > 80) debugMessages.pop();
 
+  const clockStr = msg.clock !== undefined ? ` [C:${msg.clock}]` : "";
   debugEventsList.innerHTML = debugMessages
     .map(
       (m) =>
         `<li>[${m.channel || m.topic}] <b>${m.user}</b>: ${(
           m.message || ""
-        ).slice(0, 60)}</li>`
+        ).slice(0, 50)}${m.clock !== undefined ? ` [C:${m.clock}]` : ""}</li>`
     )
     .join("");
 

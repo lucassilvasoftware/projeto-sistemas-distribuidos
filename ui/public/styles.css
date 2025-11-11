@@ -353,6 +353,22 @@ button.small:hover {
 
 /* Conteúdo das sub-abas */
 
+.tab-content {
+  display: none;
+  margin-top: 4px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: #020308;
+  font-size: var(--fs-xs);
+  max-height: 38vh;
+  overflow-y: auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 .debug-content {
   display: none;
   margin-top: 4px;
@@ -367,6 +383,28 @@ button.small:hover {
 
 .debug-content.active {
   display: block;
+}
+
+#servers-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+  font-family: monospace;
+  font-size: var(--fs-xs);
+}
+
+#servers-list li {
+  margin-bottom: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#coordinator-info {
+  margin-top: 4px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
 }
 
 /* Eventos debug */
