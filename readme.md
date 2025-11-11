@@ -238,6 +238,32 @@ docker compose logs -f reference
 
 ## Troubleshooting
 
+### "Aguardando eleição..." na UI
+
+Se a UI mostra "Aguardando eleição..." por muito tempo:
+
+1. **Verifique se os servidores têm rank:**
+   ```bash
+   docker compose logs reference | grep -i "rank"
+   ```
+
+2. **Verifique se a eleição aconteceu:**
+   ```bash
+   docker compose logs server_1 server_2 server_3 | grep -i "eleição\|election\|coordenador\|coordinator"
+   ```
+
+3. **Verifique se o anúncio foi publicado:**
+   ```bash
+   docker compose logs server_1 | grep -i "coordenador anunciado"
+   ```
+
+4. **Verifique se a UI está recebendo mensagens:**
+   ```bash
+   docker compose logs ui | grep -i "coordinator\|election"
+   ```
+
+5. **Recarregue a página da UI** - A UI tenta inferir o coordenador (servidor com menor rank) se não receber o anúncio
+
 ### Serviço de referência não compila
 Se o build do serviço de referência falhar com Alpine, use a versão Debian:
 1. Edite `docker-compose.yml`
