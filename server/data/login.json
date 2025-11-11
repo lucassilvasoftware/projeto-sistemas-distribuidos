@@ -18,5 +18,21 @@
     {
         "user": "Lucas",
         "timestamp": "2025-11-11 02:14:00"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 02:24:11"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 02:30:53"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-11 02:34:57"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-11 02:35:05"
     }
 ]
