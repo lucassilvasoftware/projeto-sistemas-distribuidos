@@ -179,8 +179,12 @@ input::placeholder {
 /* Main */
 
 .main {
-  background: radial-gradient(circle at top left, rgba(79,70,229,0.06), transparent),
-              var(--bg-elevated);
+  background: radial-gradient(
+      circle at top left,
+      rgba(79, 70, 229, 0.06),
+      transparent
+    ),
+    var(--bg-elevated);
   border-radius: var(--radius-xl);
   padding: 14px;
   border: 1px solid var(--border-subtle);
@@ -228,6 +232,11 @@ input::placeholder {
   gap: 4px;
   overflow-y: auto;
   font-size: 11px;
+
+  /* 🔽 novo: altura limitada e scroll */
+  max-height: 60vh;
+  min-height: 250px;
+  scroll-behavior: smooth;
 }
 
 .msg {
@@ -299,4 +308,87 @@ input::placeholder {
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 253, 0.35);
   border-radius: 999px;
+}
+
+/* Login overlay */
+
+#login-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+      circle at top,
+      rgba(79, 70, 229, 0.22),
+      transparent
+    ),
+    rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.login-card {
+  background: #020308;
+  border-radius: 18px;
+  padding: 24px 22px 18px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 320px;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.login-brand .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 14px var(--accent);
+}
+
+.login-card h1 {
+  margin: 4px 0 0;
+  font-size: 20px;
+}
+
+.login-card p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+#login-username {
+  margin-top: 6px;
+}
+
+#login-btn {
+  margin-top: 4px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.16s ease;
+}
+
+#login-btn:hover {
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.5);
+  transform: translateY(-1px);
+}
+
+.login-hint {
+  font-size: 9px;
+  color: var(--muted);
 }
