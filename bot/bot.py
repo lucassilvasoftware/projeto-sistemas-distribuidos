@@ -1,4 +1,5 @@
 import zmq
+import msgpack
 import time
 import json
 import os
@@ -8,12 +9,22 @@ SERVER = "server"
 PORT_REQ = 5555
 
 
+def send_msgpack(sock, obj):
+    data = msgpack.packb(obj, use_bin_type=True)
+    sock.send(data)
+
+
+def recv_msgpack(sock):
+    data = sock.recv()
+    return msgpack.unpackb(data, raw=False)
+
+
 def send_request(socket, service, data):
     msg = {"service": service, "data": data}
     print(f"[BOT-REQ] Enviando {service}: {msg}")
-    socket.send_json(msg)
-    reply = socket.recv_json()
-    print(f"[BOT-REQ] Resposta ({service}): {json.dumps(reply, indent=2)}")
+    send_msgpack(socket, msg)
+    reply = recv_msgpack(socket)
+    print(f"[BOT-REQ] Resposta ({service}): {reply}")
     return reply
 
 
@@ -34,14 +45,14 @@ def main():
         channels = resp.get("data", {}).get("channels", [])
 
         if not channels:
-            print("[BOT] Nenhum canal disponível. Esperando para tentar de novo...")
+            print("[BOT] Nenhum canal disponível. Esperando...")
             time.sleep(5)
             continue
 
         channel = random.choice(channels)
-        print(f"[BOT] {bot_name} escolhendo canal '{channel}' para enviar mensagens.")
+        print(f"[BOT] {bot_name} escolhendo canal '{channel}'.")
 
-        # manda 1 mensagem
+        # manda 1 msg
         for i in range(1):
             msg_text = f"{bot_name} msg {i} no canal {channel}"
             send_request(

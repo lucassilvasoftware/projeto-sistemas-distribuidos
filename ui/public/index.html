@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>MsgPack Chat Monitor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="dot"></div>
+        <span>MsgPack Chat</span>
+      </div>
+
+      <div class="section">
+        <label for="username">Usuário atual</label>
+        <input id="username" type="text" placeholder="seu-nome" />
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span>Canais</span>
+          <button id="refresh-channels" class="icon-btn" title="Atualizar canais">⟳</button>
+        </div>
+        <ul id="channel-list" class="list"></ul>
+        <div class="inline-form">
+          <input id="new-channel" type="text" placeholder="novo-canal" />
+          <button id="create-channel" class="primary-btn">+</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span>Usuários</span>
+          <button id="refresh-users" class="icon-btn" title="Atualizar usuários">⟳</button>
+        </div>
+        <ul id="user-list" class="list small"></ul>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div>
+          <h1 id="active-channel-title">Selecione um canal</h1>
+          <p class="muted">Mensagens em tempo real via ZeroMQ + MessagePack</p>
+        </div>
+        <div class="badge">UI</div>
+      </header>
+
+      <section id="messages" class="messages"></section>
+
+      <footer class="composer">
+        <input id="message-input" type="text" placeholder="Digite uma mensagem..." />
+        <button id="send-btn" class="primary-btn">Enviar</button>
+      </footer>
+    </main>
+
+    <aside class="sidepanel">
+      <div class="section">
+        <div class="section-header">
+          <span>Eventos recentes</span>
+        </div>
+        <ul id="event-log" class="list small events"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

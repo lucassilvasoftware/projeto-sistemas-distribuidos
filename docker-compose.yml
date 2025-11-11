@@ -5,8 +5,8 @@ services:
     build: ./proxy
     container_name: proxy
     ports:
-      - "5557:5557"   # entrada PUB dos servidores
-      - "5558:5558"   # saída para SUB dos clientes
+      - "5557:5557" # entrada PUB dos servidores
+      - "5558:5558" # saída para SUB dos clientes
     restart: unless-stopped
 
   server:
@@ -34,4 +34,14 @@ services:
       - BOT_NAME=bot_1
     depends_on:
       - server
+    restart: unless-stopped
+
+  ui:
+    build: ./ui
+    container_name: ui
+    depends_on:
+      - server
+      - proxy
+    ports:
+      - "8080:8080"
     restart: unless-stopped

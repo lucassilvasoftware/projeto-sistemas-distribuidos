@@ -3,10 +3,22 @@ import json
 import time
 import os
 import shutil
+import msgpack
 
 DATA_DIR = "data"
 DATA_FILE = os.path.join(DATA_DIR, "data.json")
 LOGIN_FILE = os.path.join(DATA_DIR, "login.json")
+
+
+# ---------- util msgpack ----------
+def send_msgpack(sock, obj):
+    data = msgpack.packb(obj, use_bin_type=True)
+    sock.send(data)
+
+
+def recv_msgpack(sock):
+    data = sock.recv()
+    return msgpack.unpackb(data, raw=False)
 
 
 # ---------- util de arquivos ----------
@@ -81,9 +93,9 @@ def handle_request(request):
             response = {
                 "service": "login",
                 "data": {
-                    "status": "Sucesso",
+                    "status": "erro",
                     "timestamp": timestamp,
-                    "description": "Usuário logado com sucesso!",
+                    "description": "Usuário já cadastrado",
                 },
             }
 
@@ -200,7 +212,7 @@ def handle_request(request):
                 "data": {"status": "sucesso", "timestamp": timestamp},
             }
 
-            # publica no tópico = nome do canal
+            # info para PUB (tópico = nome do canal)
             pub_info = (channel_name, msg_obj)
 
     else:
@@ -223,12 +235,12 @@ def main():
 
     context = zmq.Context()
 
-    # REP para clientes/bots
+    # REP
     rep_socket = context.socket(zmq.REP)
     rep_socket.bind("tcp://*:5555")
     print("[SERVER] Socket REP bind tcp://*:5555")
 
-    # PUB -> conecta no proxy (XSUB)
+    # PUB -> proxy
     pub_socket = context.socket(zmq.PUB)
     pub_socket.connect("tcp://proxy:5557")
     print("[SERVER] Socket PUB conectado em tcp://proxy:5557")
@@ -236,16 +248,15 @@ def main():
     print("[SERVER] Servidor iniciado. Aguardando requisições...")
 
     while True:
-        request = rep_socket.recv_json()
+        request = recv_msgpack(rep_socket)
         response, pub_info = handle_request(request)
-        rep_socket.send_json(response)
+        send_msgpack(rep_socket, response)
 
         if pub_info is not None:
             topic, payload = pub_info
-            msg = f"{topic} {json.dumps(payload)}"
-            print(f"[SERVER][PUB] topic='{topic}' msg={payload}")
-            pub_socket.send_string(msg)
-            # pequeno delay ajuda o roteamento
+            packed = msgpack.packb(payload, use_bin_type=True)
+            print(f"[SERVER][PUB] topic='{topic}' payload={payload}")
+            pub_socket.send_multipart([topic.encode(), packed])
             time.sleep(0.01)
 
 

@@ -1,15 +1,25 @@
 import zmq
-import json
+import msgpack
 import time
 import threading
 import queue
 
-PROXY = "proxy"    # SUB
-SERVER = "server"  # REQ/REP
+PROXY = "proxy"
+SERVER = "server"
 PORT_REQ = 5555
 PORT_SUB = 5558
 
 sub_commands = queue.Queue()
+
+
+def send_msgpack(sock, obj):
+    data = msgpack.packb(obj, use_bin_type=True)
+    sock.send(data)
+
+
+def recv_msgpack(sock):
+    data = sock.recv()
+    return msgpack.unpackb(data, raw=False)
 
 
 def subscriber_thread():
@@ -22,7 +32,7 @@ def subscriber_thread():
     poller.register(sub_socket, zmq.POLLIN)
 
     while True:
-        # aplica inscrições pedidas pelo main
+        # aplicar inscrições
         try:
             while True:
                 topic = sub_commands.get_nowait()
@@ -33,27 +43,33 @@ def subscriber_thread():
 
         socks = dict(poller.poll(100))
         if sub_socket in socks and socks[sub_socket] == zmq.POLLIN:
-            raw = sub_socket.recv_string()
+            frames = sub_socket.recv_multipart()
+            if len(frames) < 2:
+                print(f"[CLIENT-SUB][WARN] Mensagem inesperada: {frames}")
+                continue
+
+            topic = frames[0].decode()
             try:
-                topic, payload_json = raw.split(" ", 1)
-                payload = json.loads(payload_json)
-                user = payload.get("user")
-                channel = payload.get("channel")
-                text = payload.get("message")
-                ts = time.strftime(
-                    "%H:%M:%S", time.localtime(payload.get("timestamp", time.time()))
-                )
-                print(f"\n[MSG][{ts}] ({channel}) {user}: {text}\n> ", end="")
+                payload = msgpack.unpackb(frames[1], raw=False)
             except Exception as e:
-                print(f"\n[CLIENT-SUB][ERRO] msg bruta='{raw}' err={e}\n> ", end="")
+                print(f"[CLIENT-SUB][ERRO] Falha ao decodificar msgpack: {e}")
+                continue
+
+            user = payload.get("user")
+            channel = payload.get("channel", topic)
+            text = payload.get("message")
+            ts = time.strftime(
+                "%H:%M:%S", time.localtime(payload.get("timestamp", time.time()))
+            )
+            print(f"\n[MSG][{ts}] ({channel}) {user}: {text}\n> ", end="")
 
 
 def send_request(socket, service, data):
     msg = {"service": service, "data": data}
     print(f"[CLIENT-REQ] Enviando: {msg}")
-    socket.send_json(msg)
-    reply = socket.recv_json()
-    print(f"[CLIENT-REQ] Resposta: {json.dumps(reply, indent=2)}")
+    send_msgpack(socket, msg)
+    reply = recv_msgpack(socket)
+    print(f"[CLIENT-REQ] Resposta: {reply}")
     return reply
 
 
