@@ -41,8 +41,8 @@ def main():
         channel = random.choice(channels)
         print(f"[BOT] {bot_name} escolhendo canal '{channel}' para enviar mensagens.")
 
-        # manda 2 mensagens
-        for i in range(2):
+        # manda 1 mensagem
+        for i in range(1):
             msg_text = f"{bot_name} msg {i} no canal {channel}"
             send_request(
                 req_socket,
@@ -56,8 +56,8 @@ def main():
             )
             time.sleep(0.5)
 
-        print("[BOT] Ciclo concluído, recomeçando em 4s...\n")
-        time.sleep(4)
+        print("[BOT] Ciclo concluído, recomeçando em 8s...\n")
+        time.sleep(8)
 
 
 if __name__ == "__main__":
