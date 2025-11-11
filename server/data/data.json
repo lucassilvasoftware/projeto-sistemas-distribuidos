@@ -1,8 +1,37 @@
 {
-  "users": ["Lucas", "bot_1"],
-  "channels": ["Geral", "Blog"],
-  "subscriptions": {
-    "Lucas": ["Geral", "Blog"]
-  },
-  "messages": []
+    "users": [
+        "Lucas",
+        "bot_1",
+        "Pedro"
+    ],
+    "channels": [
+        "Geral",
+        "Blog"
+    ],
+    "subscriptions": {
+        "Lucas": [
+            "Geral",
+            "Blog"
+        ]
+    },
+    "messages": [
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 0 no canal Geral",
+            "timestamp": 1762836120.9469209
+        },
+        {
+            "user": "bot_1",
+            "channel": "Geral",
+            "message": "bot_1 msg 0 no canal Geral",
+            "timestamp": 1762836206.026276
+        },
+        {
+            "user": "bot_1",
+            "channel": "Blog",
+            "message": "bot_1 msg 0 no canal Blog",
+            "timestamp": 1762836214.5349874
+        }
+    ]
 }
