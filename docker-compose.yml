@@ -1,26 +1,37 @@
+version: "3.8"
+
 services:
   proxy:
-    build:
-      context: ./proxy
+    build: ./proxy
     container_name: proxy
     ports:
-      - "5557:5557"
-      - "5558:5558"
+      - "5557:5557"   # entrada PUB dos servidores
+      - "5558:5558"   # saída para SUB dos clientes
+    restart: unless-stopped
 
   server:
-    build:
-      context: ./server
-    deploy:
-      replicas: 3
+    build: ./server
+    container_name: server
     depends_on:
       - proxy
+    volumes:
+      - ./server/data:/app/data
+    restart: unless-stopped
 
   client:
-    build:
-      context: ./client
+    build: ./client
     container_name: client
-    stdin_open: true
-    tty: true
     depends_on:
       - proxy
       - server
+    stdin_open: true
+    tty: true
+
+  bot:
+    build: ./bot
+    container_name: bot
+    environment:
+      - BOT_NAME=bot_1
+    depends_on:
+      - server
+    restart: unless-stopped
