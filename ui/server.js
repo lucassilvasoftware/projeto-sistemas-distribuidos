@@ -9,8 +9,7 @@ app.use(express.static("public"));
 const SERVER_ADDR = "tcp://server:5555";
 const PROXY_SUB_ADDR = "tcp://proxy:5558";
 
-// ---------- helpers RPC (REQ/REP) com MsgPack ----------
-
+// ---------- RPC (REQ/REP) com MsgPack ----------
 async function rpc(service, data = {}) {
   const sock = new zmq.Request();
   sock.connect(SERVER_ADDR);
@@ -25,8 +24,7 @@ async function rpc(service, data = {}) {
   return decode(replyBuf);
 }
 
-// ---------- SSE: conexões dos navegadores ----------
-
+// ---------- SSE para mensagens em tempo real ----------
 const sseClients = new Set();
 
 app.get("/api/events", (req, res) => {
@@ -39,7 +37,6 @@ app.get("/api/events", (req, res) => {
   res.write("retry: 1000\n\n");
 
   sseClients.add(res);
-
   req.on("close", () => {
     sseClients.delete(res);
   });
@@ -52,8 +49,7 @@ function broadcast(event, data) {
   }
 }
 
-// ---------- SUB: recebe mensagens do proxy ----------
-
+// ---------- SUB: recebe mensagens do proxy e repassa via SSE ----------
 (async () => {
   const sub = new zmq.Subscriber();
   sub.connect(PROXY_SUB_ADDR);
@@ -68,7 +64,6 @@ function broadcast(event, data) {
       topic = msg[0].toString();
       payloadBuf = msg[1];
     } else if (!Array.isArray(msg)) {
-      // fallback: se vier single frame, ignora formato
       topic = "unknown";
       payloadBuf = msg;
     } else {
@@ -77,12 +72,8 @@ function broadcast(event, data) {
 
     try {
       const payload = decode(payloadBuf);
-      const enriched = {
-        topic,
-        ...payload,
-      };
-
-      console.log("🛰️ [UI] msg recebida:", enriched);
+      const enriched = { topic, ...payload };
+      // console.log("🛰️ [UI] msg recebida:", enriched);
       broadcast("message", enriched);
     } catch (e) {
       console.error("🛰️ [UI] erro ao decodificar msgpack:", e);
@@ -94,6 +85,24 @@ function broadcast(event, data) {
 
 // ---------- APIs REST ----------
 
+// login do usuário (chama serviço login do servidor Python)
+app.post("/api/login", async (req, res) => {
+  const { user } = req.body;
+  if (!user) return res.status(400).json({ error: "user required" });
+
+  try {
+    const reply = await rpc("login", {
+      user,
+      timestamp: Date.now() / 1000,
+    });
+    res.json(reply);
+  } catch (e) {
+    console.error("[UI] /api/login erro", e);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
+// listar usuários
 app.get("/api/users", async (req, res) => {
   try {
     const reply = await rpc("users", { timestamp: Date.now() / 1000 });
@@ -104,6 +113,7 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
+// listar canais
 app.get("/api/channels", async (req, res) => {
   try {
     const reply = await rpc("channels", { timestamp: Date.now() / 1000 });
@@ -114,6 +124,7 @@ app.get("/api/channels", async (req, res) => {
   }
 });
 
+// criar canal
 app.post("/api/channel", async (req, res) => {
   const { channel } = req.body;
   if (!channel) return res.status(400).json({ error: "channel required" });
@@ -130,6 +141,7 @@ app.post("/api/channel", async (req, res) => {
   }
 });
 
+// publicar mensagem
 app.post("/api/publish", async (req, res) => {
   const { user, channel, message } = req.body;
   if (!user || !channel || !message) {
@@ -146,6 +158,23 @@ app.post("/api/publish", async (req, res) => {
     res.json(reply);
   } catch (e) {
     console.error("[UI] /api/publish erro", e);
+    res.status(500).json({ error: "failed" });
+  }
+});
+
+// histórico de mensagens de um canal
+app.get("/api/history", async (req, res) => {
+  const { channel } = req.query;
+  if (!channel) return res.status(400).json({ error: "channel required" });
+
+  try {
+    const reply = await rpc("history", {
+      channel,
+      timestamp: Date.now() / 1000,
+    });
+    res.json(reply);
+  } catch (e) {
+    console.error("[UI] /api/history erro", e);
     res.status(500).json({ error: "failed" });
   }
 });

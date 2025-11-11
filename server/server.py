@@ -105,6 +105,19 @@ def handle_request(request):
             "data": {"timestamp": time.time(), "users": data["users"]},
         }
 
+    elif service == "history":
+        channel_name = payload.get("channel")
+        # opcional: timestamp_from = payload.get("from_timestamp")
+        msgs = [m for m in data.get("messages", []) if m.get("channel") == channel_name]
+        response = {
+            "service": "history",
+            "data": {
+                "status": "sucesso",
+                "timestamp": time.time(),
+                "messages": msgs,
+            },
+        }
+
     elif service == "channel":
         channel_name = payload.get("channel")
         timestamp = time.time()

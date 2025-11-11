@@ -7,8 +7,7 @@
     "channels": [
         "Geral",
         "Blog",
-        "Noticias",
-        "Teste"
+        "Noticias"
     ],
     "subscriptions": {
         "Lucas": [
@@ -21,61 +20,13 @@
             "user": "bot_1",
             "channel": "Geral",
             "message": "bot_1 msg 0 no canal Geral",
-            "timestamp": 1762826720.6985054
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 1 no canal Geral",
-            "timestamp": 1762826721.2032554
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 2 no canal Geral",
-            "timestamp": 1762826721.7093337
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 3 no canal Geral",
-            "timestamp": 1762826722.2146757
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 0 no canal Geral",
-            "timestamp": 1762830325.4108682
+            "timestamp": 1762831054.8646762
         },
         {
             "user": "bot_1",
             "channel": "Noticias",
             "message": "bot_1 msg 0 no canal Noticias",
-            "timestamp": 1762830333.9196484
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 0 no canal Geral",
-            "timestamp": 1762830342.427398
-        },
-        {
-            "user": "bot_1",
-            "channel": "Geral",
-            "message": "bot_1 msg 0 no canal Geral",
-            "timestamp": 1762830350.9358988
-        },
-        {
-            "user": "bot_1",
-            "channel": "Teste",
-            "message": "bot_1 msg 0 no canal Teste",
-            "timestamp": 1762830359.4446282
-        },
-        {
-            "user": "Lucas",
-            "channel": "Blog",
-            "message": "ol\u00e1",
-            "timestamp": 1762830366.398
+            "timestamp": 1762831063.3706925
         }
     ]
 }

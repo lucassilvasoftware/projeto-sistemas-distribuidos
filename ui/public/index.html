@@ -1,11 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <title>MsgPack Chat Monitor</title>
+  <title>MsgPack Chat</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
+  <!-- Overlay de Login -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="dot"></div>
+        <span>MsgPack Chat</span>
+      </div>
+      <h1>Entrar</h1>
+      <p>Escolha um nome de usuário para entrar no chat distribuído.</p>
+      <input id="login-username" type="text" placeholder="seu-usuário" />
+      <button id="login-btn">Entrar</button>
+      <p class="login-hint">
+        Usuário é registrado no servidor. Se já existir, o login é registrado e você entra do mesmo jeito.
+      </p>
+    </div>
+  </div>
+
+  <!-- App principal -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -15,7 +35,7 @@
 
       <div class="section">
         <label for="username">Usuário atual</label>
-        <input id="username" type="text" placeholder="seu-nome" />
+        <input id="username" type="text" placeholder="não logado" disabled />
       </div>
 
       <div class="section">
@@ -43,7 +63,9 @@
       <header class="main-header">
         <div>
           <h1 id="active-channel-title">Selecione um canal</h1>
-          <p class="muted">Mensagens em tempo real via ZeroMQ + MessagePack</p>
+          <p class="muted">
+            Mensagens em tempo real via ZeroMQ + MessagePack. Histórico é carregado ao entrar no canal.
+          </p>
         </div>
         <div class="badge">UI</div>
       </header>
@@ -68,4 +90,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

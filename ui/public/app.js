@@ -11,9 +11,14 @@ const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
 const eventLog = document.getElementById("event-log");
 
-let activeChannel = null;
-let currentUser = "";
+const loginOverlay = document.getElementById("login-overlay");
+const loginUsernameInput = document.getElementById("login-username");
+const loginBtn = document.getElementById("login-btn");
 
+let activeChannel = null;
+let currentUser = null;
+
+// -------- utils --------
 function logEvent(text) {
   const li = document.createElement("li");
   li.textContent = text;
@@ -30,6 +35,56 @@ async function fetchJSON(url, options) {
   return res.json();
 }
 
+// -------- login (sempre por overlay, sem persistência) --------
+async function doLogin(username) {
+  username = (username || "").trim();
+  if (!username) {
+    logEvent("Informe um nome de usuário para entrar.");
+    return;
+  }
+
+  try {
+    const reply = await fetchJSON("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user: username }),
+    });
+
+    const status = reply?.data?.status || "sucesso";
+
+    currentUser = username;
+    usernameInput.value = username;
+    loginOverlay.style.display = "none";
+
+    if (status === "sucesso") {
+      logEvent(`Login realizado como '${username}'.`);
+    } else {
+      // ex: usuário já cadastrado -> ok pra entrar também
+      logEvent(`Login em '${username}' (usuário já existia).`);
+    }
+
+    await loadChannels();
+    await loadUsers();
+  } catch (e) {
+    console.error("Erro no login:", e);
+    logEvent("Erro ao tentar fazer login.");
+  }
+}
+
+loginBtn.addEventListener("click", () => {
+  doLogin(loginUsernameInput.value);
+});
+
+loginUsernameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    doLogin(loginUsernameInput.value);
+  }
+});
+
+// Não há auto-login: toda atualização exige login manual
+logEvent("UI carregada. Faça login para começar.");
+
+// -------- canais / usuários --------
 async function loadChannels() {
   try {
     const reply = await fetchJSON("/api/channels");
@@ -41,21 +96,13 @@ async function loadChannels() {
       li.textContent = ch;
       li.dataset.channel = ch;
       if (ch === activeChannel) li.classList.add("active");
-      li.addEventListener("click", () => {
-        activeChannel = ch;
-        activeChannelTitle.textContent = `Canal #${ch}`;
-        [...channelList.children].forEach((n) =>
-          n.classList.toggle("active", n.dataset.channel === ch)
-        );
-        messagesEl.innerHTML = "";
-        logEvent(`Mudou para canal #${ch}`);
-      });
+      li.addEventListener("click", () => selectChannel(ch));
       channelList.appendChild(li);
     });
 
-    logEvent("Canais atualizados");
+    logEvent("Canais atualizados.");
   } catch (e) {
-    logEvent("Erro ao carregar canais");
+    logEvent("Erro ao carregar canais.");
     console.error(e);
   }
 }
@@ -70,9 +117,9 @@ async function loadUsers() {
       li.textContent = u;
       userList.appendChild(li);
     });
-    logEvent("Usuários atualizados");
+    logEvent("Usuários atualizados.");
   } catch (e) {
-    logEvent("Erro ao carregar usuários");
+    logEvent("Erro ao carregar usuários.");
     console.error(e);
   }
 }
@@ -87,24 +134,61 @@ async function createChannel() {
       body: JSON.stringify({ channel: ch }),
     });
     if (reply?.data?.status === "sucesso") {
-      logEvent(`Canal #${ch} criado`);
+      logEvent(`Canal #${ch} criado.`);
       newChannelInput.value = "";
       await loadChannels();
     } else {
-      logEvent(`Falha ao criar canal #${ch}`);
+      logEvent(`Falha ao criar canal #${ch}.`);
       console.warn(reply);
     }
   } catch (e) {
-    logEvent(`Erro ao criar canal #${ch}`);
+    logEvent(`Erro ao criar canal #${ch}.`);
   }
 }
 
-async function sendMessage() {
-  currentUser = usernameInput.value.trim() || "anon";
-  if (!activeChannel) {
-    logEvent("Selecione um canal antes de enviar");
+// -------- histórico ao trocar de canal --------
+async function selectChannel(ch) {
+  if (!currentUser) {
+    logEvent("Faça login antes de entrar em um canal.");
     return;
   }
+
+  activeChannel = ch;
+  activeChannelTitle.textContent = `Canal #${ch}`;
+  [...channelList.children].forEach((n) =>
+    n.classList.toggle("active", n.dataset.channel === ch)
+  );
+
+  messagesEl.innerHTML = "";
+  logEvent(`Entrando em #${ch}, carregando histórico...`);
+
+  try {
+    const reply = await fetchJSON(
+      `/api/history?channel=${encodeURIComponent(ch)}`
+    );
+    const msgs = reply?.data?.messages || [];
+
+    msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    msgs.forEach((m) => renderMessage(m, ch, true));
+
+    logEvent(`Histórico de #${ch} carregado (${msgs.length} mensagens).`);
+  } catch (e) {
+    logEvent(`Erro ao carregar histórico de #${ch}.`);
+    console.error(e);
+  }
+}
+
+// -------- envio de mensagem --------
+async function sendMessage() {
+  if (!currentUser) {
+    logEvent("Faça login antes de enviar mensagens.");
+    return;
+  }
+  if (!activeChannel) {
+    logEvent("Selecione um canal antes de enviar.");
+    return;
+  }
+
   const text = messageInput.value.trim();
   if (!text) return;
 
@@ -121,27 +205,28 @@ async function sendMessage() {
     if (reply?.data?.status === "sucesso") {
       messageInput.value = "";
     } else {
-      logEvent("Falha ao enviar mensagem");
+      logEvent("Falha ao enviar mensagem.");
       console.warn(reply);
     }
   } catch (e) {
-    logEvent("Erro ao enviar mensagem");
+    logEvent("Erro ao enviar mensagem.");
     console.error(e);
   }
 }
 
-function appendMessage(msg) {
+// -------- renderização de mensagens --------
+function renderMessage(msg, forcedChannel = null) {
   const { topic, user, channel, message, timestamp } = msg;
-  const ch = channel || topic;
+  const ch = forcedChannel || channel || topic;
+  if (!ch) return;
 
-  // se tiver canal ativo, só mostra mensagens dele
-  if (activeChannel && ch !== activeChannel) {
-    return;
-  }
+  // só mostra mensagens do canal ativo
+  if (!activeChannel || ch !== activeChannel) return;
 
   const div = document.createElement("div");
   div.classList.add("msg");
-  if (user === usernameInput.value.trim()) {
+
+  if (currentUser && user === currentUser) {
     div.classList.add("self");
   }
   if (
@@ -154,14 +239,19 @@ function appendMessage(msg) {
 
   const meta = document.createElement("div");
   meta.classList.add("meta");
+
   const u = document.createElement("span");
   u.classList.add("user");
   u.textContent = user || "???";
+
   const c = document.createElement("span");
   c.textContent = `#${ch}`;
+
   const t = document.createElement("span");
   const ts = timestamp
-    ? new Date(timestamp * 1000 || timestamp).toLocaleTimeString()
+    ? new Date(
+        String(timestamp).length > 11 ? timestamp : timestamp * 1000
+      ).toLocaleTimeString()
     : new Date().toLocaleTimeString();
   t.textContent = ts;
 
@@ -179,8 +269,7 @@ function appendMessage(msg) {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-// Eventos UI
-
+// -------- botões e eventos --------
 createChannelBtn.addEventListener("click", createChannel);
 newChannelInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") createChannel();
@@ -189,7 +278,11 @@ newChannelInput.addEventListener("keydown", (e) => {
 refreshChannelsBtn.addEventListener("click", loadChannels);
 refreshUsersBtn.addEventListener("click", loadUsers);
 
-sendBtn.addEventListener("click", sendMessage);
+sendBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  sendMessage();
+});
+
 messageInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
@@ -197,18 +290,13 @@ messageInput.addEventListener("keydown", (e) => {
   }
 });
 
-// SSE (mensagens em tempo real)
+// -------- SSE: mensagens novas --------
 const es = new EventSource("/api/events");
 es.addEventListener("message", (e) => {
   try {
     const data = JSON.parse(e.data);
-    appendMessage(data);
+    renderMessage(data);
   } catch (err) {
     console.error("Erro ao parsear SSE", err);
   }
 });
-
-// Inicialização
-loadChannels();
-loadUsers();
-logEvent("UI carregada. Crie um canal, selecione e envie mensagens.");
