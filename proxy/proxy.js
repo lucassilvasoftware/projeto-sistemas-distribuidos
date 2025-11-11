@@ -1,31 +1,28 @@
 import zmq from "zeromq";
 
 async function main() {
-  const xsub = new zmq.Subscriber(); // recebe do server (PUB)
-  const xpub = new zmq.Publisher(); // envia para clients/bots (SUB)
+  const xsub = new zmq.Subscriber(); // entrada: servers (PUB)
+  const xpub = new zmq.Publisher(); // saída: clients/bots (SUB)
 
-  // assina tudo
-  xsub.subscribe();
+  xsub.subscribe(); // assina todos tópicos
 
-  await xsub.bind("tcp://*:5557");
-  await xpub.bind("tcp://*:5558");
+  await xsub.bind("tcp://*:5557"); // server PUB conecta aqui
+  await xpub.bind("tcp://*:5558"); // clients SUB conectam aqui
 
-  console.log("🛰️ Proxy MsgPack Pub/Sub iniciado");
-  console.log("    entrada  (servers PUB) -> tcp://*:5557");
-  console.log("    saída    (clients SUB) -> tcp://*:5558");
+  console.log("🛰️ Proxy iniciado");
+  console.log("  XSUB tcp://*:5557");
+  console.log("  XPUB tcp://*:5558");
 
   for await (const msg of xsub) {
     // msg pode ser Buffer ou array de Buffers (multipart)
     if (Array.isArray(msg)) {
-      console.log(`🛰️ [Proxy] encaminhando multipart (${msg.length} frames)`);
       await xpub.send(msg);
     } else {
-      console.log("🛰️ [Proxy] encaminhando single frame");
       await xpub.send(msg);
     }
   }
 }
 
 main().catch((err) => {
-  console.error("🛰️ Proxy erro fatal:", err);
+  console.error("Proxy error:", err);
 });

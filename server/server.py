@@ -10,7 +10,7 @@ DATA_FILE = os.path.join(DATA_DIR, "data.json")
 LOGIN_FILE = os.path.join(DATA_DIR, "login.json")
 
 
-# ---------- util msgpack ----------
+# ---------- MsgPack helpers ----------
 def send_msgpack(sock, obj):
     data = msgpack.packb(obj, use_bin_type=True)
     sock.send(data)
@@ -24,17 +24,17 @@ def recv_msgpack(sock):
 # ---------- util de arquivos ----------
 def ensure_file(path, default_content):
     if os.path.isdir(path):
-        print(f"[WARN] {path} é diretório, removendo para recriar arquivo.")
+        print(f"[WARN] {path} é diretório, removendo.")
         shutil.rmtree(path)
     if not os.path.exists(path):
-        print(f"[INIT] Criando {path} com conteúdo padrão.")
+        print(f"[INIT] Criando {path}.")
         with open(path, "w") as f:
             json.dump(default_content, f, indent=4)
     try:
         with open(path, "r") as f:
             return json.load(f)
     except json.JSONDecodeError:
-        print(f"[WARN] {path} corrompido. Recriando com conteúdo padrão.")
+        print(f"[WARN] {path} corrompido. Resetando.")
         with open(path, "w") as f:
             json.dump(default_content, f, indent=4)
         return default_content
@@ -59,8 +59,8 @@ def save_data(data):
 
 def save_login(username):
     logins = ensure_file(LOGIN_FILE, [])
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    logins.append({"user": username, "timestamp": timestamp})
+    ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    logins.append({"user": username, "timestamp": ts})
     with open(LOGIN_FILE, "w") as f:
         json.dump(logins, f, indent=4)
 
@@ -71,124 +71,101 @@ def handle_request(request):
     service = request.get("service")
     payload = request.get("data", {})
 
-    print(f"[SERVER] Serviço recebido: {service} | Payload: {payload}")
-
-    pub_info = None  # (topic, payload_dict) caso precise publicar
+    print(f"[SERVER] Serviço: {service} | Payload: {payload}")
+    pub_info = None  # (topic, payload_dict)
 
     if service == "login":
         username = payload.get("user")
-        timestamp = time.time()
+        ts = time.time()
         if username not in data["users"]:
             data["users"].append(username)
             save_data(data)
             save_login(username)
-            print(f"[SERVER] Novo usuário registrado: {username}")
-            response = {
-                "service": "login",
-                "data": {"status": "sucesso", "timestamp": timestamp},
-            }
+            print(f"[SERVER] Novo usuário: {username}")
+            resp = {"service": "login", "data": {"status": "sucesso", "timestamp": ts}}
         else:
             save_login(username)
-            print(f"[SERVER] Login repetido para usuário existente: {username}")
-            response = {
+            print(f"[SERVER] Login usuário existente: {username}")
+            resp = {
                 "service": "login",
                 "data": {
                     "status": "erro",
-                    "timestamp": timestamp,
+                    "timestamp": ts,
                     "description": "Usuário já cadastrado",
                 },
             }
 
     elif service == "users":
-        response = {
+        resp = {
             "service": "users",
             "data": {"timestamp": time.time(), "users": data["users"]},
         }
 
-    elif service == "history":
-        channel_name = payload.get("channel")
-        # opcional: timestamp_from = payload.get("from_timestamp")
-        msgs = [m for m in data.get("messages", []) if m.get("channel") == channel_name]
-        response = {
-            "service": "history",
-            "data": {
-                "status": "sucesso",
-                "timestamp": time.time(),
-                "messages": msgs,
-            },
-        }
-
     elif service == "channel":
-        channel_name = payload.get("channel")
-        timestamp = time.time()
-        if channel_name not in data["channels"]:
-            data["channels"].append(channel_name)
+        ch = payload.get("channel")
+        ts = time.time()
+        if ch not in data["channels"]:
+            data["channels"].append(ch)
             save_data(data)
-            print(f"[SERVER] Canal criado: {channel_name}")
-            response = {
+            print(f"[SERVER] Canal criado: {ch}")
+            resp = {
                 "service": "channel",
-                "data": {"status": "sucesso", "timestamp": timestamp},
+                "data": {"status": "sucesso", "timestamp": ts},
             }
         else:
-            print(f"[SERVER] Tentativa de criar canal já existente: {channel_name}")
-            response = {
+            resp = {
                 "service": "channel",
                 "data": {
                     "status": "erro",
-                    "timestamp": timestamp,
+                    "timestamp": ts,
                     "description": "Canal já existe",
                 },
             }
 
     elif service == "channels":
-        response = {
+        resp = {
             "service": "channels",
             "data": {"timestamp": time.time(), "channels": data["channels"]},
         }
 
     elif service == "subscribe":
         user = payload.get("user")
-        channel_name = payload.get("channel")
-        timestamp = time.time()
+        ch = payload.get("channel")
+        ts = time.time()
 
         if user not in data["users"]:
             msg = "Usuário inexistente"
-            print(f"[SERVER][ERRO][subscribe] {msg}: {user}")
-            response = {
+            resp = {
                 "service": "subscribe",
-                "data": {"status": "erro", "timestamp": timestamp, "description": msg},
+                "data": {"status": "erro", "timestamp": ts, "description": msg},
             }
-        elif channel_name not in data["channels"]:
+        elif ch not in data["channels"]:
             msg = "Canal inexistente"
-            print(f"[SERVER][ERRO][subscribe] {msg}: {channel_name}")
-            response = {
+            resp = {
                 "service": "subscribe",
-                "data": {"status": "erro", "timestamp": timestamp, "description": msg},
+                "data": {"status": "erro", "timestamp": ts, "description": msg},
             }
         else:
             subs = data.setdefault("subscriptions", {})
             user_subs = subs.setdefault(user, [])
-            if channel_name not in user_subs:
-                user_subs.append(channel_name)
+            if ch not in user_subs:
+                user_subs.append(ch)
                 save_data(data)
-                print(f"[SERVER] {user} inscrito no canal {channel_name}")
-            else:
-                print(f"[SERVER] {user} já estava inscrito em {channel_name}")
-            response = {
+                print(f"[SERVER] {user} inscrito em {ch}")
+            resp = {
                 "service": "subscribe",
-                "data": {"status": "sucesso", "timestamp": timestamp},
+                "data": {"status": "sucesso", "timestamp": ts},
             }
 
     elif service == "publish":
         user = payload.get("user")
-        channel_name = payload.get("channel")
-        message_text = payload.get("message")
-        timestamp = payload.get("timestamp", time.time())
+        ch = payload.get("channel")
+        msg_txt = payload.get("message")
+        ts = payload.get("timestamp", time.time())
 
         if user not in data["users"]:
             msg = "Usuário inexistente"
-            print(f"[SERVER][ERRO][publish] {msg}: {user}")
-            response = {
+            resp = {
                 "service": "publish",
                 "data": {
                     "status": "erro",
@@ -196,10 +173,9 @@ def handle_request(request):
                     "description": msg,
                 },
             }
-        elif channel_name not in data["channels"]:
+        elif ch not in data["channels"]:
             msg = "Canal inexistente"
-            print(f"[SERVER][ERRO][publish] {msg}: {channel_name}")
-            response = {
+            resp = {
                 "service": "publish",
                 "data": {
                     "status": "erro",
@@ -210,27 +186,33 @@ def handle_request(request):
         else:
             msg_obj = {
                 "user": user,
-                "channel": channel_name,
-                "message": message_text,
-                "timestamp": timestamp,
+                "channel": ch,
+                "message": msg_txt,
+                "timestamp": ts,
             }
             data.setdefault("messages", []).append(msg_obj)
             save_data(data)
-            print(
-                f"[SERVER] Msg publicada por {user} em {channel_name}: {message_text}"
-            )
-
-            response = {
+            print(f"[SERVER] Msg {user}@{ch}: {msg_txt}")
+            resp = {
                 "service": "publish",
-                "data": {"status": "sucesso", "timestamp": timestamp},
+                "data": {"status": "sucesso", "timestamp": ts},
             }
+            pub_info = (ch, msg_obj)
 
-            # info para PUB (tópico = nome do canal)
-            pub_info = (channel_name, msg_obj)
+    elif service == "history":
+        ch = payload.get("channel")
+        msgs = [m for m in data.get("messages", []) if m.get("channel") == ch]
+        resp = {
+            "service": "history",
+            "data": {
+                "status": "sucesso",
+                "timestamp": time.time(),
+                "messages": msgs,
+            },
+        }
 
     else:
-        print(f"[SERVER][ERRO] Serviço inválido: {service}")
-        response = {
+        resp = {
             "service": "error",
             "data": {
                 "status": "erro",
@@ -239,38 +221,33 @@ def handle_request(request):
             },
         }
 
-    return response, pub_info
+    return resp, pub_info
 
 
 # ---------- main ----------
 def main():
     os.makedirs(DATA_DIR, exist_ok=True)
+    ctx = zmq.Context()
 
-    context = zmq.Context()
+    rep = ctx.socket(zmq.REP)
+    rep.bind("tcp://*:5555")
+    print("[SERVER] REP em tcp://*:5555")
 
-    # REP
-    rep_socket = context.socket(zmq.REP)
-    rep_socket.bind("tcp://*:5555")
-    print("[SERVER] Socket REP bind tcp://*:5555")
+    pub = ctx.socket(zmq.PUB)
+    pub.connect("tcp://proxy:5557")
+    print("[SERVER] PUB -> proxy tcp://proxy:5557")
 
-    # PUB -> proxy
-    pub_socket = context.socket(zmq.PUB)
-    pub_socket.connect("tcp://proxy:5557")
-    print("[SERVER] Socket PUB conectado em tcp://proxy:5557")
-
-    print("[SERVER] Servidor iniciado. Aguardando requisições...")
+    print("[SERVER] Online (MsgPack).")
 
     while True:
-        request = recv_msgpack(rep_socket)
-        response, pub_info = handle_request(request)
-        send_msgpack(rep_socket, response)
+        req = recv_msgpack(rep)
+        resp, pub_info = handle_request(req)
+        send_msgpack(rep, resp)
 
-        if pub_info is not None:
+        if pub_info:
             topic, payload = pub_info
             packed = msgpack.packb(payload, use_bin_type=True)
-            print(f"[SERVER][PUB] topic='{topic}' payload={payload}")
-            pub_socket.send_multipart([topic.encode(), packed])
-            time.sleep(0.01)
+            pub.send_multipart([topic.encode(), packed])
 
 
 if __name__ == "__main__":
