@@ -11,26 +11,74 @@ Sistema de troca de mensagens instantâneas (BBS-like) usando ZeroMQ, MessagePac
 - **MessagePack**: Serialização binária de mensagens
 - **Docker**: Containerização e orquestração
 
-### Visão Geral da Arquitetura
+### Arquitetura Geral do Sistema
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Browser   │────▶│     UI      │────▶│  Server 1   │
-│  (Cliente)  │     │  (Node.js)  │     │  (Python)   │
-└─────────────┘     └─────────────┘     └─────────────┘
-                            │                    │
-                            │                    │
-                    ┌───────┴───────┐    ┌──────┴──────┐
-                    │               │    │             │
-            ┌───────▼───────┐  ┌───▼───┐  ┌───────────▼──────┐
-            │     Proxy     │  │Reference│ │  Server 2 & 3   │
-            │  (Pub/Sub)    │  │ Service │ │   (Python)      │
-            └───────┬───────┘  └────────┘ └──────────────────┘
-                    │
-            ┌───────┴───────┐
-            │  Bots/Client  │
-            │   (Python)    │
-            └───────────────┘
+```mermaid
+graph TB
+    subgraph "Cliente Web"
+        UI[UI - Node.js<br/>Porta 8080]
+        Browser[Navegador Web]
+    end
+    
+    subgraph "Clientes"
+        Bot1[Bot 1 - Python]
+        Bot2[Bot 2 - Python]
+        Client[Client - Python]
+    end
+    
+    subgraph "Servidores de Aplicação"
+        S1[Server 1 - Python<br/>Porta 5555<br/>Rank: 1]
+        S2[Server 2 - Python<br/>Porta 5555<br/>Rank: 2]
+        S3[Server 3 - Python<br/>Porta 5555<br/>Rank: 3]
+    end
+    
+    subgraph "Infraestrutura"
+        Proxy[Proxy Pub/Sub - Node.js<br/>5557 PUB / 5558 SUB]
+        Ref[Reference Service - Go<br/>Porta 5559]
+    end
+    
+    subgraph "Persistência"
+        D1[Data Server 1<br/>./server/data/server_1]
+        D2[Data Server 2<br/>./server/data/server_2]
+        D3[Data Server 3<br/>./server/data/server_3]
+    end
+    
+    Browser -->|HTTP| UI
+    UI -->|REQ/REP ZMQ<br/>MsgPack| S1
+    UI -->|SUB ZMQ<br/>MsgPack| Proxy
+    
+    Bot1 -->|REQ/REP ZMQ<br/>MsgPack| S1
+    Bot1 -->|SUB ZMQ<br/>MsgPack| Proxy
+    Bot2 -->|REQ/REP ZMQ<br/>MsgPack| S1
+    Bot2 -->|SUB ZMQ<br/>MsgPack| Proxy
+    Client -->|REQ/REP ZMQ<br/>MsgPack| S1
+    Client -->|SUB ZMQ<br/>MsgPack| Proxy
+    
+    S1 -->|REQ/REP ZMQ<br/>MsgPack| Ref
+    S2 -->|REQ/REP ZMQ<br/>MsgPack| Ref
+    S3 -->|REQ/REP ZMQ<br/>MsgPack| Ref
+    
+    S1 -->|PUB ZMQ<br/>MsgPack| Proxy
+    S2 -->|PUB ZMQ<br/>MsgPack| Proxy
+    S3 -->|PUB ZMQ<br/>MsgPack| Proxy
+    
+    S1 -->|Persistência| D1
+    S2 -->|Persistência| D2
+    S3 -->|Persistência| D3
+    
+    S1 -.->|Replicação<br/>Pub/Sub| S2
+    S1 -.->|Replicação<br/>Pub/Sub| S3
+    S2 -.->|Replicação<br/>Pub/Sub| S1
+    S2 -.->|Replicação<br/>Pub/Sub| S3
+    S3 -.->|Replicação<br/>Pub/Sub| S1
+    S3 -.->|Replicação<br/>Pub/Sub| S2
+    
+    style S1 fill:#4f46e5,color:#fff
+    style S2 fill:#6366f1,color:#fff
+    style S3 fill:#818cf8,color:#fff
+    style Ref fill:#10b981,color:#fff
+    style Proxy fill:#f59e0b,color:#fff
+    style UI fill:#ec4899,color:#fff
 ```
 
 **Fluxos Principais:**
