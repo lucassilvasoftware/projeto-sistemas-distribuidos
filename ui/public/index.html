@@ -65,6 +65,12 @@
       <div class="debug">
         <h3>🧠 Painel de Debug</h3>
 
+        <div class="tabs">
+          <button class="tab active" data-tab="events">Eventos</button>
+          <button class="tab" data-tab="clocks">Relógios</button>
+          <button class="tab" data-tab="msgpack">MsgPack</button>
+        </div>
+
         <div id="tab-events" class="tab-content active">
           <button id="refresh-status" class="small">Atualizar Status</button>
           <ul id="status-list"></ul>
@@ -74,6 +80,18 @@
 
           <h4>Payload MsgPack</h4>
           <pre id="debug-payload-viewer">// Nenhuma mensagem recebida ainda.</pre>
+        </div>
+
+        <div id="tab-clocks" class="tab-content">
+          <div class="info-box">
+            <strong>🕐 Relógio Lógico do Cliente:</strong>
+            <span id="client-clock">0</span>
+          </div>
+          <button id="refresh-servers" class="small">Atualizar Servidores</button>
+          <h4>Servidores Registrados</h4>
+          <ul id="servers-list"></ul>
+          <h4>Coordenador</h4>
+          <div id="coordinator-info" class="info-box">Aguardando informações...</div>
         </div>
 
         <div id="tab-msgpack" class="tab-content">

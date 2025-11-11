@@ -12,6 +12,24 @@ PORT_SUB = 5558
 
 sub_commands = queue.Queue()
 
+# Relógio lógico
+logical_clock = 0
+clock_lock = threading.Lock()
+
+
+def increment_clock():
+    global logical_clock
+    with clock_lock:
+        logical_clock += 1
+        return logical_clock
+
+
+def update_clock(received_clock):
+    global logical_clock
+    with clock_lock:
+        logical_clock = max(logical_clock, received_clock) + 1
+        return logical_clock
+
 
 # ---------- Helpers MsgPack ----------
 def send_msgpack(sock, obj):
@@ -53,22 +71,46 @@ def subscriber_thread():
                     continue
                 topic = frames[0].decode()
                 payload = msgpack.unpackb(frames[1], raw=False)
+                # Atualiza relógio lógico ao receber mensagem
+                received_clock = payload.get("clock", 0)
+                if received_clock > 0:
+                    update_clock(received_clock)
+                
                 ts = time.strftime(
                     "%H:%M:%S", time.localtime(payload.get("timestamp", time.time()))
                 )
-                print(
-                    f"\n[{ts}] ({topic}) {payload.get('user')}: {payload.get('message')}\n> ",
-                    end="",
-                )
+                # Detecta se é mensagem privada ou de canal
+                if payload.get("dst"):
+                    # Mensagem privada
+                    src = payload.get("src") or payload.get("user")
+                    print(
+                        f"\n[{ts}] [PRIVADA de {src}]: {payload.get('message')}\n> ",
+                        end="",
+                    )
+                else:
+                    # Mensagem de canal
+                    print(
+                        f"\n[{ts}] ({topic}) {payload.get('user')}: {payload.get('message')}\n> ",
+                        end="",
+                    )
             except Exception as e:
                 print(f"[ERRO][SUB] Falha ao decodificar mensagem: {e}")
 
 
 # ---------- REQ Helper ----------
 def send_request(sock, service, data):
+    # Adiciona relógio lógico antes de enviar
+    clock = increment_clock()
+    data["clock"] = clock
     msg = {"service": service, "data": data}
     send_msgpack(sock, msg)
     resp = recv_msgpack(sock)
+    
+    # Atualiza relógio lógico ao receber resposta
+    received_clock = resp.get("data", {}).get("clock", 0)
+    if received_clock > 0:
+        update_clock(received_clock)
+    
     print(f"[RESP] {resp}")
     return resp
 
@@ -89,6 +131,10 @@ def main():
         print("Usuário inválido.")
         sys.exit(1)
     send_request(req, "login", {"user": user, "timestamp": time.time()})
+    
+    # Inscreve no próprio tópico para receber mensagens privadas
+    sub_commands.put(user)
+    print(f"[CLIENT] Inscrito no tópico '{user}' para receber mensagens privadas")
 
     current_channel = None
 
@@ -98,8 +144,9 @@ def main():
         print("2. Criar canal")
         print("3. Listar canais")
         print("4. Entrar em canal")
-        print("5. Enviar mensagem")
-        print("6. Sair")
+        print("5. Enviar mensagem no canal")
+        print("6. Enviar mensagem privada")
+        print("7. Sair")
         choice = input("> ").strip()
 
         if choice == "1":
@@ -154,6 +201,26 @@ def main():
             )
 
         elif choice == "6":
+            # Enviar mensagem privada
+            dst_user = input("Destinatário: ").strip()
+            if not dst_user:
+                print("Destinatário inválido.")
+                continue
+            msg_txt = input("Mensagem: ").strip()
+            if not msg_txt:
+                continue
+            send_request(
+                req,
+                "message",
+                {
+                    "src": user,
+                    "dst": dst_user,
+                    "message": msg_txt,
+                    "timestamp": time.time(),
+                },
+            )
+
+        elif choice == "7":
             print("Saindo...")
             break
 
