@@ -191,100 +191,7 @@ sequenceDiagram
     Note over S1,S3: Eventual Consistency
 ```
 
-## 6. Estrutura de Containers Docker
-
-```mermaid
-graph LR
-    subgraph "Docker Network: projeto-sistemas-distribuidos_default"
-        subgraph "Infraestrutura"
-            Ref[reference:5559<br/>Go]
-            Proxy[proxy:5557/5558<br/>Node.js]
-        end
-        
-        subgraph "Servidores"
-            S1[server_1:5555<br/>Python<br/>Volume: server_1/data<br/>Volume: scripts]
-            S2[server_2:5555<br/>Python<br/>Volume: server_2/data]
-            S3[server_3:5555<br/>Python<br/>Volume: server_3/data]
-        end
-        
-        subgraph "Clientes"
-            Bot1[bot_1<br/>Python]
-            Bot2[bot_2<br/>Python]
-            Client[client<br/>Python]
-        end
-        
-        subgraph "Interface"
-            UI[ui:8080<br/>Node.js<br/>Volume: scripts<br/>Volume: docker.sock]
-        end
-    end
-    
-    subgraph "Host"
-        HostScripts[./scripts/<br/>test.py, on.py, off.py]
-        HostData1[./server/data/server_1/]
-        HostData2[./server/data/server_2/]
-        HostData3[./server/data/server_3/]
-    end
-    
-    S1 -.->|Volume| HostScripts
-    S1 -.->|Volume| HostData1
-    S2 -.->|Volume| HostData2
-    S3 -.->|Volume| HostData3
-    UI -.->|Volume| HostScripts
-    UI -.->|Volume| docker.sock
-    
-    S1 -->|REQ/REP| Ref
-    S2 -->|REQ/REP| Ref
-    S3 -->|REQ/REP| Ref
-    S1 -->|PUB| Proxy
-    S2 -->|PUB| Proxy
-    S3 -->|PUB| Proxy
-    Bot1 -->|REQ/REP| S1
-    Bot2 -->|REQ/REP| S1
-    Client -->|REQ/REP| S1
-    UI -->|REQ/REP| S1
-    Bot1 -->|SUB| Proxy
-    Bot2 -->|SUB| Proxy
-    Client -->|SUB| Proxy
-    UI -->|SUB| Proxy
-```
-
-## 7. Estrutura de Dados e Persistência
-
-```mermaid
-graph TB
-    subgraph "Server Data Structure"
-        Data[data.json]
-        Login[login.json]
-    end
-    
-    subgraph "data.json"
-        Users[users: Array]
-        Channels[channels: Array]
-        Messages[messages: Array]
-        PrivMessages[private_messages: Array]
-    end
-    
-    subgraph "Replicação"
-        Repl1[server_1/data.json]
-        Repl2[server_2/data.json]
-        Repl3[server_3/data.json]
-    end
-    
-    Data --> Users
-    Data --> Channels
-    Data --> Messages
-    Data --> PrivMessages
-    
-    Repl1 -.->|Sincronizado| Repl2
-    Repl2 -.->|Sincronizado| Repl3
-    Repl3 -.->|Sincronizado| Repl1
-    
-    style Repl1 fill:#4f46e5,color:#fff
-    style Repl2 fill:#6366f1,color:#fff
-    style Repl3 fill:#818cf8,color:#fff
-```
-
-## 11. Estrutura de Arquivos do Projeto
+## 6. Estrutura de Arquivos do Projeto
 
 ```
 projeto-sistemas-distribuidos/
@@ -343,36 +250,7 @@ projeto-sistemas-distribuidos/
 └── readme.md                  # Documentação
 ```
 
-## 12. Fluxo de Testes Automatizados
-
-```mermaid
-sequenceDiagram
-    participant U as Usuário
-    participant UI as UI (Browser)
-    participant API as UI Server
-    participant Docker as Docker
-    participant S1 as Server 1
-    participant Test as test.py
-    
-    U->>UI: Clica "Executar Testes"
-    UI->>API: GET /api/tests
-    API->>Docker: docker exec server_1 python3 /scripts/test.py --json
-    Docker->>S1: Executa test.py
-    S1->>Test: Executa testes
-    Test->>Test: test_reference_service()
-    Test->>Test: test_servers_status()
-    Test->>Test: test_election()
-    Test->>Test: test_channels()
-    Test->>Test: test_replication()
-    Test->>S1: Retorna JSON
-    S1->>Docker: stdout (JSON)
-    Docker->>API: JSON resultado
-    API->>UI: JSON resposta
-    UI->>UI: Renderiza resultados
-    UI->>U: Mostra resultados
-```
-
-## 13. Componentes e Tecnologias
+## 7. Componentes e Tecnologias
 
 ```mermaid
 graph LR
@@ -411,7 +289,7 @@ graph LR
     Docker --> DC
 ```
 
-## 14. Portas e Protocolos
+## 8. Portas e Protocolos
 
 | Componente | Porta | Protocolo | Descrição |
 |------------|-------|-----------|-----------|
