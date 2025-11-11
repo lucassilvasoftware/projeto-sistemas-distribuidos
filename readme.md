@@ -75,13 +75,20 @@ Sistema de troca de mensagens instantâneas (BBS-like) usando ZeroMQ, MessagePac
 - ✅ Heartbeat de servidores
 - ✅ Sincronização a cada 10 mensagens
 
+### Parte 5: Consistência e Replicação
+- ✅ Replicação de dados entre servidores
+- ✅ Cada servidor possui sua própria cópia dos dados
+- ✅ Replicação baseada em eventos via Pub/Sub
+- ✅ Tópico "replication" para sincronização
+- ✅ Prevenção de duplicatas e loops
+
 ## Como Executar
 
 ### Pré-requisitos
 - Docker e Docker Compose
 - Python 3 (para scripts auxiliares)
 
-### Iniciar o sistema
+### Passo 1: Iniciar o sistema
 ```bash
 python scripts/on.py
 ```
@@ -89,9 +96,30 @@ python scripts/on.py
 O script irá:
 1. Limpar containers antigos
 2. Fazer build das imagens
-3. Subir todos os serviços
+3. Subir todos os serviços (reference, proxy, servers, bots, UI)
 4. Aguardar estabilização
-5. Abrir a UI em http://localhost:8080
+5. **Abrir a UI automaticamente no navegador** (http://localhost:8080)
+
+**Aguarde até o sistema estar totalmente iniciado** (o script mostrará quando estiver pronto).
+
+### Passo 2: Testar o sistema
+
+Você tem **duas opções** para testar:
+
+#### Opção A: Testes via UI (Recomendado)
+1. A UI já deve estar aberta no navegador (aberta automaticamente pelo `on.py`)
+2. Faça login na UI
+3. Vá para a aba **"Testes"** no painel de debug (parte inferior da tela)
+4. Clique em **"Executar Testes"**
+5. Veja os resultados na tela
+
+#### Opção B: Testes via linha de comando
+```bash
+# Execute os testes (instala dependências automaticamente)
+python scripts/test.py
+```
+
+**Nota:** Você deve executar o `on.py` PRIMEIRO para iniciar o sistema. Os testes só funcionam quando o sistema estiver rodando.
 
 ### Parar o sistema
 ```bash
@@ -205,14 +233,19 @@ O serviço de referência (Go) gerencia:
 
 ### Testes Automatizados
 
-Execute o script de testes automatizados:
+**Importante:** O sistema deve estar rodando (via `python scripts/on.py`) antes de executar os testes.
 
+#### Via UI (Recomendado)
+1. Abra a UI em http://localhost:8080
+2. Vá para a aba **"Testes"** no painel de debug
+3. Clique em **"Executar Testes"**
+4. Veja os resultados na tela
+
+#### Via Linha de Comando
 ```bash
-# Instale as dependências (se necessário)
-pip install -r scripts/requirements.txt
-
-# Execute os testes
-python scripts/test.py
+# O script instala dependências automaticamente
+python scripts/test.py          # Modo normal (com logs)
+python scripts/test.py --json   # Modo JSON (para APIs)
 ```
 
 O script de testes verifica:
@@ -222,6 +255,7 @@ O script de testes verifica:
 - ✅ Bots estão rodando e enviando mensagens
 - ✅ Canais podem ser criados e listados
 - ✅ Relógio lógico está funcionando
+- ✅ Replicação de dados está funcionando
 
 ## Logs
 
@@ -289,6 +323,95 @@ Se o build do serviço de referência falhar com Alpine, use a versão Debian:
 - Relógio lógico: `increment_clock()`, `update_clock()`
 - Sincronização física: `sync_physical_clock()`, `start_election()`
 
+## Parte 5: Consistência e Replicação
+
+### Método de Replicação
+
+O sistema utiliza **Replicação Baseada em Eventos (Event Sourcing adaptado)** via Pub/Sub para garantir que todos os servidores tenham uma cópia completa dos dados.
+
+#### Como funciona:
+
+1. **Operações Replicadas**: Quando um servidor recebe uma operação que modifica dados (login, channel, publish, message, subscribe), ele:
+   - Salva a operação localmente
+   - Publica uma mensagem de replicação no tópico `replication` via Pub/Sub
+
+2. **Replicação**: Outros servidores:
+   - Estão inscritos no tópico `replication`
+   - Recebem mensagens de replicação
+   - Aplicam as mudanças localmente (sem publicar novamente para evitar loops)
+
+3. **Prevenção de Loops**: 
+   - Cada mensagem de replicação inclui o nome do servidor origem
+   - Servidores ignoram mensagens de replicação do próprio servidor
+   - Verificação de duplicatas usando timestamp e conteúdo da mensagem
+
+4. **Armazenamento**:
+   - Cada servidor possui seu próprio diretório de dados (`server/data/server_1`, `server/data/server_2`, etc.)
+   - Dados são replicados em tempo real via Pub/Sub
+   - Se um servidor falhar, os outros continuam com dados completos
+
+#### Formato da Mensagem de Replicação:
+
+```json
+{
+  "service": "replicate_<operation>",
+  "data": {
+    "operation": "login|channel|publish|message|subscribe",
+    "payload": { ... dados da operação original ... },
+    "source": "server_1",
+    "timestamp": 1234567890,
+    "clock": 42
+  }
+}
+```
+
+#### Operações Replicadas:
+
+- **login**: Novo usuário criado
+- **channel**: Novo canal criado
+- **publish**: Mensagem publicada em canal
+- **message**: Mensagem privada enviada
+- **subscribe**: Usuário inscrito em canal
+
+#### Vantagens:
+
+- ✅ **Tolerância a falhas**: Se um servidor falhar, outros têm dados completos
+- ✅ **Consistência eventual**: Todos os servidores eventualmente têm os mesmos dados
+- ✅ **Performance**: Replicação assíncrona não bloqueia operações
+- ✅ **Simplicidade**: Usa a infraestrutura Pub/Sub existente
+
+#### Limitações e Considerações:
+
+- **Consistência eventual**: Dados podem levar alguns milissegundos para se propagar
+- **Sem transações**: Não há garantia de atomicidade entre múltiplas operações
+- **Deduplicação**: Sistema verifica duplicatas usando timestamp e conteúdo
+- **Ordem**: Relógio lógico garante ordem causal das operações
+
+### Testando a Replicação
+
+1. **Inicie o sistema**:
+   ```bash
+   python scripts/on.py
+   ```
+
+2. **Envie mensagens através de diferentes servidores**:
+   - Mensagens enviadas via `server_1` devem aparecer no histórico de `server_2` e `server_3`
+   - Verifique os logs: `docker compose logs server_1 server_2 server_3 | grep REPLICATION`
+
+3. **Teste tolerância a falhas**:
+   - Pare um servidor: `docker compose stop server_2`
+   - Envie mensagens via outros servidores
+   - Reinicie o servidor: `docker compose start server_2`
+   - Verifique se o servidor recebeu as mensagens via replicação
+
+4. **Verifique dados**:
+   ```bash
+   # Ver dados de cada servidor
+   cat server/data/server_1/data.json
+   cat server/data/server_2/data.json
+   cat server/data/server_3/data.json
+   ```
+
 ## Referências
 
 - [ZeroMQ](https://zeromq.org/)
@@ -296,3 +419,4 @@ Se o build do serviço de referência falhar com Alpine, use a versão Debian:
 - [Docker](https://www.docker.com/)
 - [Algoritmo de Berkeley](https://en.wikipedia.org/wiki/Berkeley_algorithm)
 - [Lamport Timestamps](https://en.wikipedia.org/wiki/Lamport_timestamp)
+- [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html)

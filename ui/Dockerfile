@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+# Instala Docker CLI para executar testes via docker exec
+RUN apk add --no-cache docker-cli
+
 WORKDIR /app
 
 COPY package.json .

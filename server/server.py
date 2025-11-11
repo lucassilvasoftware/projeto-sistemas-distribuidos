@@ -23,6 +23,8 @@ message_count_lock = threading.Lock()
 REFERENCE_HOST = os.getenv("REFERENCE_HOST", "reference")
 REFERENCE_PORT = 5559
 SYNC_INTERVAL = 10  # Sincronizar a cada 10 mensagens
+replication_enabled = True  # Flag para habilitar/desabilitar replicação
+replication_lock = threading.Lock()  # Lock para operações de replicação
 
 
 # ---------- Relógio Lógico ----------
@@ -360,8 +362,129 @@ def election_thread():
                 start_election()
 
 
+# ---------- Replicação de dados ----------
+def replicate_operation(service, payload, pub_socket):
+    """Publica operação no tópico de replicação para outros servidores"""
+    global replication_enabled
+    if not replication_enabled:
+        return
+    
+    try:
+        clock = increment_clock()
+        replication_msg = {
+            "service": f"replicate_{service}",
+            "data": {
+                "operation": service,
+                "payload": payload,
+                "source": server_name,
+                "timestamp": time.time(),
+                "clock": clock,
+            },
+        }
+        packed = msgpack.packb(replication_msg, use_bin_type=True)
+        pub_socket.send_multipart([b"replication", packed])
+        print(f"[REPLICATION] Operação '{service}' replicada para outros servidores")
+    except Exception as e:
+        print(f"[REPLICATION] Erro ao replicar operação: {e}")
+
+
+def apply_replication(operation, payload):
+    """Aplica uma operação de replicação recebida de outro servidor"""
+    global replication_enabled
+    if not replication_enabled:
+        return
+    
+    try:
+        data = load_data()
+        source = payload.get("source", "unknown")
+        
+        # Não aplicar se for do próprio servidor (evitar loops)
+        if source == server_name:
+            return
+        
+        print(f"[REPLICATION] Aplicando operação '{operation}' de {source}")
+        
+        if operation == "login":
+            username = payload.get("payload", {}).get("user")
+            if username and username not in data["users"]:
+                data["users"].append(username)
+                save_data(data)
+                save_login(username)
+                print(f"[REPLICATION] Usuário '{username}' replicado de {source}")
+        
+        elif operation == "channel":
+            ch = payload.get("payload", {}).get("channel")
+            if ch and ch not in data["channels"]:
+                data["channels"].append(ch)
+                save_data(data)
+                print(f"[REPLICATION] Canal '{ch}' replicado de {source}")
+        
+        elif operation == "publish":
+            payload_data = payload.get("payload", {})
+            msg_obj = {
+                "user": payload_data.get("user"),
+                "channel": payload_data.get("channel"),
+                "message": payload_data.get("message"),
+                "timestamp": payload_data.get("timestamp"),
+                "clock": payload.get("clock", 0),
+            }
+            # Verifica se a mensagem já existe (evitar duplicatas) usando user, channel, message, timestamp e clock
+            messages = data.get("messages", [])
+            exists = any(
+                m.get("user") == msg_obj.get("user") and
+                m.get("channel") == msg_obj.get("channel") and
+                m.get("message") == msg_obj.get("message") and
+                abs(m.get("timestamp", 0) - msg_obj.get("timestamp", 0)) < 1.0 and
+                m.get("clock") == msg_obj.get("clock")
+                for m in messages
+            )
+            if not exists:
+                data.setdefault("messages", []).append(msg_obj)
+                save_data(data)
+                print(f"[REPLICATION] Mensagem replicada de {source}")
+        
+        elif operation == "message":
+            payload_data = payload.get("payload", {})
+            msg_obj = {
+                "src": payload_data.get("src"),
+                "dst": payload_data.get("dst"),
+                "user": payload_data.get("src"),
+                "message": payload_data.get("message"),
+                "timestamp": payload_data.get("timestamp"),
+                "clock": payload.get("clock", 0),
+            }
+            # Verifica se a mensagem já existe (evitar duplicatas) usando src, dst, message, timestamp e clock
+            messages = data.get("messages", [])
+            exists = any(
+                m.get("src") == msg_obj.get("src") and
+                m.get("dst") == msg_obj.get("dst") and
+                m.get("message") == msg_obj.get("message") and
+                abs(m.get("timestamp", 0) - msg_obj.get("timestamp", 0)) < 1.0 and
+                m.get("clock") == msg_obj.get("clock")
+                for m in messages
+            )
+            if not exists:
+                data.setdefault("messages", []).append(msg_obj)
+                save_data(data)
+                print(f"[REPLICATION] Mensagem privada replicada de {source}")
+        
+        elif operation == "subscribe":
+            user = payload.get("payload", {}).get("user")
+            ch = payload.get("payload", {}).get("channel")
+            if user and ch:
+                subs = data.setdefault("subscriptions", {})
+                user_subs = subs.setdefault(user, [])
+                if ch not in user_subs:
+                    user_subs.append(ch)
+                    save_data(data)
+                    print(f"[REPLICATION] Inscrição {user}@{ch} replicada de {source}")
+    
+    except Exception as e:
+        print(f"[REPLICATION] Erro ao aplicar replicação: {e}")
+
+
 # ---------- lógica de serviços ----------
-def handle_request(request):
+def handle_request(request, is_replication=False, pub_socket=None):
     global coordinator, message_count
     
     # Atualiza relógio lógico ao receber mensagem
@@ -372,15 +495,24 @@ def handle_request(request):
     data = load_data()
     service = request.get("service")
     payload = request.get("data", {})
-
+    
+    # Se for uma operação de replicação, aplica e retorna sem processar
+    if service and service.startswith("replicate_"):
+        operation = service.replace("replicate_", "")
+        apply_replication(operation, payload)
+        # Retorna resposta vazia para operações de replicação
+        return {"service": "replication", "data": {"status": "ok"}}, None
+    
     print(f"[SERVER] Serviço: {service} | Payload: {payload} | Clock: {get_clock()}")
     pub_info = None  # (topic, payload_dict)
+    needs_replication = False  # Flag para indicar se precisa replicar
     
-    # Incrementa contador de mensagens
-    with message_count_lock:
-        message_count += 1
-        if message_count % SYNC_INTERVAL == 0:
-            sync_physical_clock()
+    # Incrementa contador de mensagens (apenas se não for replicação)
+    if not is_replication:
+        with message_count_lock:
+            message_count += 1
+            if message_count % SYNC_INTERVAL == 0:
+                sync_physical_clock()
 
     if service == "login":
         username = payload.get("user")
@@ -391,11 +523,16 @@ def handle_request(request):
             save_data(data)
             save_login(username)
             print(f"[SERVER] Novo usuário: {username}")
+            needs_replication = True  # Precisa replicar novo usuário
         else:
             save_login(username)
             print(f"[SERVER] Login usuário existente: {username}")
         # Login sempre retorna sucesso (é login, não cadastro)
         resp = {"service": "login", "data": {"status": "sucesso", "timestamp": ts, "clock": clock}}
+        
+        # Replica operação se não for de replicação
+        if needs_replication and not is_replication and pub_socket:
+            replicate_operation("login", payload, pub_socket)
 
     elif service == "users":
         clock = increment_clock()
@@ -416,6 +553,9 @@ def handle_request(request):
                 "service": "channel",
                 "data": {"status": "sucesso", "timestamp": ts, "clock": clock},
             }
+            # Replica operação se não for de replicação
+            if not is_replication and pub_socket:
+                replicate_operation("channel", payload, pub_socket)
         else:
             resp = {
                 "service": "channel",
@@ -459,6 +599,9 @@ def handle_request(request):
                 user_subs.append(ch)
                 save_data(data)
                 print(f"[SERVER] {user} inscrito em {ch}")
+                # Replica operação se não for de replicação
+                if not is_replication and pub_socket:
+                    replicate_operation("subscribe", payload, pub_socket)
             resp = {
                 "service": "subscribe",
                 "data": {"status": "sucesso", "timestamp": ts, "clock": clock},
@@ -509,6 +652,9 @@ def handle_request(request):
                 "data": {"status": "sucesso", "timestamp": ts, "clock": clock},
             }
             pub_info = (ch, msg_obj)
+            # Replica operação se não for de replicação
+            if not is_replication and pub_socket:
+                replicate_operation("publish", payload, pub_socket)
 
     elif service == "message":
         # Mensagens privadas entre usuários
@@ -559,6 +705,9 @@ def handle_request(request):
             }
             # Publica no tópico do usuário destino
             pub_info = (dst, msg_obj)
+            # Replica operação se não for de replicação
+            if not is_replication and pub_socket:
+                replicate_operation("message", payload, pub_socket)
 
     elif service == "history":
         ch = payload.get("channel")
@@ -647,6 +796,41 @@ def server_subscriber_thread(pub_socket):
             print(f"[SERVER] Erro no subscriber: {e}")
 
 
+# ---------- Subscriber para tópico "replication" (Parte 5) ----------
+def replication_subscriber_thread():
+    """Thread que recebe operações de replicação de outros servidores"""
+    ctx = zmq.Context()
+    sub = ctx.socket(zmq.SUB)
+    sub.connect("tcp://proxy:5558")
+    sub.setsockopt_string(zmq.SUBSCRIBE, "replication")
+    
+    print("[REPLICATION] Subscriber conectado ao tópico 'replication'")
+    
+    while True:
+        try:
+            frames = sub.recv_multipart()
+            if len(frames) < 2:
+                continue
+            topic = frames[0].decode()
+            payload = msgpack.unpackb(frames[1], raw=False)
+            
+            if topic == "replication":
+                # Atualiza relógio lógico
+                received_clock = payload.get("data", {}).get("clock", 0)
+                if received_clock > 0:
+                    update_clock(received_clock)
+                
+                # Processa operação de replicação
+                service = payload.get("service")
+                if service and service.startswith("replicate_"):
+                    # Aplica a replicação diretamente
+                    operation = service.replace("replicate_", "")
+                    apply_replication(operation, payload.get("data", {}))
+        
+        except Exception as e:
+            print(f"[REPLICATION] Erro no subscriber: {e}")
+
+
 # ---------- main ----------
 def main():
     global server_rank, coordinator
@@ -671,6 +855,7 @@ def main():
     threading.Thread(target=sync_thread, daemon=True).start()
     threading.Thread(target=server_subscriber_thread, args=(pub,), daemon=True).start()
     threading.Thread(target=election_thread, daemon=True).start()
+    threading.Thread(target=replication_subscriber_thread, daemon=True).start()
     
     # Aguarda um pouco antes de iniciar eleição
     time.sleep(3)
@@ -679,11 +864,11 @@ def main():
     else:
         print("[SERVER] Aguardando rank antes de iniciar eleição...")
 
-    print("[SERVER] Online (MsgPack + Relógios).")
+    print("[SERVER] Online (MsgPack + Relógios + Replicação).")
 
     while True:
         req = recv_msgpack(rep)
-        resp, pub_info = handle_request(req)
+        resp, pub_info = handle_request(req, is_replication=False, pub_socket=pub)
         send_msgpack(rep, resp)
 
         if pub_info:
