@@ -395,18 +395,6 @@ Se o build do serviço de referência falhar com Alpine, use a versão Debian:
 - Verifique os logs: `docker compose logs reference`
 - Verifique se os servidores têm acesso à rede Docker
 
-## Desenvolvimento
-
-### Adicionar novo serviço
-1. Adicione handler no `server/server.py`
-2. Atualize formato de mensagem se necessário
-3. Adicione endpoint na UI se necessário
-4. Teste com `python scripts/on.py`
-
-### Modificar relógios
-- Relógio lógico: `increment_clock()`, `update_clock()`
-- Sincronização física: `sync_physical_clock()`, `start_election()`
-
 ### Testando a Replicação
 
 1. **Inicie o sistema**:
