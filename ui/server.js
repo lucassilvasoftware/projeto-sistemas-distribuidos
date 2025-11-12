@@ -262,6 +262,22 @@ app.get("/api/history", async (req, res) => {
   }
 });
 
+// Histórico de mensagens privadas
+app.get("/api/private-history", async (req, res) => {
+  const { user1, user2 } = req.query;
+  if (!user1 || !user2) {
+    return res.status(400).json({ error: "user1 e user2 são obrigatórios" });
+  }
+
+  try {
+    const reply = await rpc("private_history", { user1, user2 });
+    return res.json(reply);
+  } catch (err) {
+    console.error("[UI][API][private-history] Erro:", err);
+    return res.status(500).json({ error: "failed" });
+  }
+});
+
 // ---------- Logs para Debug (SSE único centralizado) ----------
 app.get("/api/debug/logs", (req, res) => {
   console.log("[UI][DEBUG] Cliente conectado em /api/debug/logs");

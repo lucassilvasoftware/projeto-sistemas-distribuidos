@@ -723,6 +723,42 @@ def handle_request(request, is_replication=False, pub_socket=None):
             },
         }
     
+    elif service == "private_history":
+        # Histórico de mensagens privadas entre dois usuários
+        user1 = payload.get("user1")
+        user2 = payload.get("user2")
+        clock = increment_clock()
+        
+        if not user1 or not user2:
+            resp = {
+                "service": "private_history",
+                "data": {
+                    "status": "erro",
+                    "timestamp": time.time(),
+                    "clock": clock,
+                    "description": "user1 e user2 são obrigatórios",
+                    "messages": [],
+                },
+            }
+        else:
+            # Busca mensagens privadas entre os dois usuários (em qualquer direção)
+            msgs = [
+                m for m in data.get("messages", [])
+                if m.get("dst") and (
+                    (m.get("src") == user1 and m.get("dst") == user2) or
+                    (m.get("src") == user2 and m.get("dst") == user1)
+                )
+            ]
+            resp = {
+                "service": "private_history",
+                "data": {
+                    "status": "sucesso",
+                    "timestamp": time.time(),
+                    "clock": clock,
+                    "messages": msgs,
+                },
+            }
+    
     elif service == "clock":
         # Serviço para sincronização de relógio físico (Berkeley)
         clock = increment_clock()

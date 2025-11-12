@@ -81,10 +81,11 @@ def subscriber_thread():
                 )
                 # Detecta se é mensagem privada ou de canal
                 if payload.get("dst"):
-                    # Mensagem privada
+                    # Mensagem privada recebida (só recebemos mensagens no nosso próprio tópico)
                     src = payload.get("src") or payload.get("user")
+                    msg_txt = payload.get("message")
                     print(
-                        f"\n[{ts}] [PRIVADA de {src}]: {payload.get('message')}\n> ",
+                        f"\n[{ts}] [PRIVADA de {src}]: {msg_txt}\n> ",
                         end="",
                     )
                 else:
@@ -146,7 +147,8 @@ def main():
         print("4. Entrar em canal")
         print("5. Enviar mensagem no canal")
         print("6. Enviar mensagem privada")
-        print("7. Sair")
+        print("7. Ver histórico de mensagens privadas")
+        print("8. Sair")
         choice = input("> ").strip()
 
         if choice == "1":
@@ -206,10 +208,13 @@ def main():
             if not dst_user:
                 print("Destinatário inválido.")
                 continue
+            if dst_user == user:
+                print("⚠️  Você não pode enviar mensagem para si mesmo.")
+                continue
             msg_txt = input("Mensagem: ").strip()
             if not msg_txt:
                 continue
-            send_request(
+            resp = send_request(
                 req,
                 "message",
                 {
@@ -219,8 +224,52 @@ def main():
                     "timestamp": time.time(),
                 },
             )
+            if resp.get("data", {}).get("status") == "sucesso":
+                print(f"✅ Mensagem privada enviada para {dst_user}")
+            else:
+                print(f"❌ Erro ao enviar mensagem: {resp.get('data', {}).get('description', 'Erro desconhecido')}")
 
         elif choice == "7":
+            # Ver histórico de mensagens privadas
+            other_user = input("Digite o nome do outro usuário: ").strip()
+            if not other_user:
+                print("Usuário inválido.")
+                continue
+            if other_user == user:
+                print("⚠️  Selecione outro usuário.")
+                continue
+            
+            print(f"[INFO] Carregando histórico de mensagens privadas com '{other_user}'...")
+            resp = send_request(req, "private_history", {"user1": user, "user2": other_user})
+            msgs = resp.get("data", {}).get("messages", [])
+            
+            if not msgs:
+                print(f"[INFO] Nenhuma mensagem privada com '{other_user}'.")
+            else:
+                print(f"\n[INFO] Histórico de mensagens com '{other_user}' ({len(msgs)} mensagens):")
+                print("-" * 60)
+                # Ordena mensagens por timestamp
+                msgs.sort(key=lambda m: m.get("timestamp", 0))
+                for m in msgs:
+                    ts = time.strftime(
+                        "%H:%M:%S", time.localtime(m.get("timestamp", time.time()))
+                    )
+                    src = m.get("src") or m.get("user")
+                    dst = m.get("dst")
+                    msg_txt = m.get("message")
+                    
+                    # Identifica se foi enviada ou recebida
+                    if src == user:
+                        direction = f"→ {dst}"
+                        prefix = "[ENVIADA]"
+                    else:
+                        direction = f"{src} → você"
+                        prefix = "[RECEBIDA]"
+                    
+                    print(f"[{ts}] {prefix} {direction}: {msg_txt}")
+                print("-" * 60)
+
+        elif choice == "8":
             print("Saindo...")
             break
 
