@@ -104,6 +104,11 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
+  transition: background 0.2s ease;
+}
+
+.section ul li:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .section ul li:last-child {
@@ -235,6 +240,15 @@ button.small:hover {
   border-left: 2px solid var(--accent);
 }
 
+.msg.private {
+  background: rgba(79, 70, 229, 0.08);
+  border-left: 2px solid rgba(79, 70, 229, 0.4);
+}
+
+.msg.private.self {
+  background: rgba(79, 70, 229, 0.15);
+}
+
 /* ---------- Form de envio ---------- */
 
 .msg-form {
@@ -267,6 +281,26 @@ button.small:hover {
 .msg-form button:hover {
   box-shadow: 0 8px 18px rgba(79, 70, 229, 0.6);
   transform: translateY(-1px);
+}
+
+/* ---------- Info de mensagem privada ---------- */
+
+.private-message-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(79, 70, 229, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.private-message-info strong {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* ---------- Eventos laterais no content ---------- */
@@ -511,6 +545,44 @@ button.small:hover {
 .overlay-box button:hover {
   box-shadow: 0 10px 20px rgba(79, 70, 229, 0.6);
   transform: translateY(-1px);
+}
+
+.overlay-box button.secondary {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--muted);
+}
+
+.overlay-box button.secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  transform: none;
+}
+
+.overlay-box label {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.overlay-box textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: #020308;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-family: var(--font);
+  resize: vertical;
+  min-height: 60px;
+}
+
+.overlay-box input[readonly] {
+  background: rgba(255, 255, 255, 0.05);
+  cursor: default;
 }
 
 /* ---------- Scrollbar ---------- */

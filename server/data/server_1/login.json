@@ -14,5 +14,53 @@
     {
         "user": "Lucas",
         "timestamp": "2025-11-11 18:05:30"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-12 06:50:36"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-12 06:50:36"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-12 06:51:00"
+    },
+    {
+        "user": "Pedro",
+        "timestamp": "2025-11-12 06:51:13"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-12 06:56:11"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-12 06:56:11"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-12 06:56:39"
+    },
+    {
+        "user": "Pedro",
+        "timestamp": "2025-11-12 06:56:45"
+    },
+    {
+        "user": "bot_1",
+        "timestamp": "2025-11-12 07:00:01"
+    },
+    {
+        "user": "bot_2",
+        "timestamp": "2025-11-12 07:00:01"
+    },
+    {
+        "user": "Lucas",
+        "timestamp": "2025-11-12 07:00:24"
+    },
+    {
+        "user": "Pedro",
+        "timestamp": "2025-11-12 07:00:29"
     }
 ]

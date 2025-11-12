@@ -14,6 +14,12 @@ const createChannelBtn = document.getElementById("create-channel");
 const refreshChannelsBtn = document.getElementById("refresh-channels");
 const refreshUsersBtn = document.getElementById("refresh-users");
 
+// Mensagens Privadas
+const privateMessageDst = { value: null }; // Objeto para manter estado
+const privateMessageInfo = document.getElementById("private-message-info");
+const privateMessageUser = document.getElementById("private-message-user");
+const closePrivateChatBtn = document.getElementById("close-private-chat-btn");
+
 // Chat
 const messagesEl = document.getElementById("messages");
 const activeChannelTitle = document.getElementById("active-channel-title");
@@ -132,6 +138,10 @@ loginUsernameInput.addEventListener("keydown", (e) => {
 
 logEvent("UI carregada. Faça login para começar.");
 
+// Inicializa estado do campo de mensagem
+messageInput.disabled = true;
+messageInput.placeholder = "Selecione um canal ou clique em um usuário para enviar mensagem privada";
+
 // ---------- Canais / Usuários ----------
 async function loadChannels() {
   try {
@@ -161,6 +171,12 @@ async function loadUsers() {
     users.forEach((u) => {
       const li = document.createElement("li");
       li.textContent = u;
+      // Não permitir conversar com si mesmo
+      if (u !== currentUser) {
+        li.style.cursor = "pointer";
+        li.title = "Clique para abrir conversa privada";
+        li.addEventListener("click", () => openPrivateChat(u));
+      }
       userListEl.appendChild(li);
     });
     logEvent("Usuários atualizados.");
@@ -209,6 +225,16 @@ async function selectChannel(ch) {
     n.classList.toggle("active", n.dataset.channel === ch)
   );
   messagesEl.innerHTML = "";
+  renderedMessages.clear(); // Limpa cache ao mudar de canal
+  
+  // Habilita campo de envio de mensagem
+  messageInput.disabled = false;
+  messageInput.placeholder = "Digite uma mensagem...";
+  
+  // Limpa conversa privada
+  privateMessageDst.value = null;
+  privateMessageInfo.style.display = "none";
+  
   logEvent(`Entrando em #${ch}...`);
 
   try {
@@ -227,26 +253,142 @@ async function selectChannel(ch) {
 
 // ---------- Enviar mensagem ----------
 async function sendMessage() {
-  if (!currentUser || !activeChannel) return;
+  if (!currentUser) return;
   const text = messageInput.value.trim();
   if (!text) return;
 
-  try {
-    await fetchJSON("/api/publish", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user: currentUser,
-        channel: activeChannel,
-        message: text,
-        timestamp: Date.now() / 1000,
-      }),
-    });
-    messageInput.value = "";
-  } catch {
-    logEvent("Erro ao enviar mensagem.");
+  // Verifica se é mensagem de canal ou privada
+  if (activeChannel) {
+    // Mensagem de canal
+    try {
+      await fetchJSON("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: currentUser,
+          channel: activeChannel,
+          message: text,
+          timestamp: Date.now() / 1000,
+        }),
+      });
+      messageInput.value = "";
+    } catch {
+      logEvent("Erro ao enviar mensagem.");
+    }
+  } else if (privateMessageDst.value) {
+    // Mensagem privada
+    const dst = privateMessageDst.value;
+    try {
+      const reply = await fetchJSON("/api/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          src: currentUser,
+          dst: dst,
+          message: text,
+          timestamp: Date.now() / 1000,
+        }),
+      });
+      
+      if (reply?.data?.status === "sucesso") {
+        messageInput.value = "";
+        // Renderiza a mensagem enviada imediatamente para o remetente
+        // O servidor publica apenas no tópico do destinatário, então o remetente
+        // não recebe via SSE e precisa ver a mensagem renderizada manualmente
+        // Usa o timestamp e clock retornados pelo servidor para garantir consistência
+        const sentMsg = {
+          src: currentUser,
+          dst: dst,
+          user: currentUser,
+          message: text,
+          timestamp: reply?.data?.timestamp || Date.now() / 1000,
+          clock: reply?.data?.clock || 0,
+        };
+        // Renderiza a mensagem (a verificação de duplicação está na função renderMessage)
+        renderMessage(sentMsg);
+      } else {
+        logEvent(`Erro ao enviar mensagem: ${reply?.data?.description || "Erro desconhecido"}.`);
+      }
+    } catch (e) {
+      console.error("Erro ao enviar mensagem privada:", e);
+      logEvent("Erro ao enviar mensagem privada.");
+    }
   }
 }
+
+// ---------- Mensagens Privadas ----------
+async function openPrivateChat(dstUser) {
+  if (!currentUser) {
+    logEvent("Faça login antes de abrir conversa privada.");
+    return;
+  }
+  if (dstUser === currentUser) {
+    logEvent("Você não pode conversar com si mesmo.");
+    return;
+  }
+  
+  // Define destinatário da conversa privada
+  privateMessageDst.value = dstUser;
+  activeChannel = null; // Limpa canal ativo
+  
+  // Atualiza UI
+  activeChannelTitle.textContent = `Conversa privada com ${dstUser}`;
+  privateMessageUser.textContent = dstUser;
+  privateMessageInfo.style.display = "block";
+  
+  // Habilita campo de mensagem para conversa privada
+  messageInput.disabled = false;
+  messageInput.placeholder = `Digite uma mensagem para ${dstUser}...`;
+  
+  // Desmarca canais ativos
+  [...channelListEl.children].forEach((n) => n.classList.remove("active"));
+  
+  // Carrega histórico
+  await loadPrivateHistory(dstUser);
+}
+
+function closePrivateChat() {
+  privateMessageDst.value = null;
+  privateMessageInfo.style.display = "none";
+  activeChannelTitle.textContent = "Selecione um canal";
+  messageInput.disabled = true;
+  messageInput.placeholder = "Selecione um canal ou clique em um usuário para enviar mensagem privada";
+  messagesEl.innerHTML = "";
+  activeChannel = null;
+}
+
+async function loadPrivateHistory(dstUser) {
+  if (!currentUser || !dstUser) return;
+  
+  try {
+    const reply = await fetchJSON(
+      `/api/private-history?user1=${encodeURIComponent(currentUser)}&user2=${encodeURIComponent(dstUser)}`
+    );
+    const msgs = reply?.data?.messages || [];
+    
+    // Limpa área de mensagens e cache de mensagens renderizadas
+    messagesEl.innerHTML = "";
+    renderedMessages.clear();
+    
+    // Renderiza mensagens do histórico (ordenadas por timestamp)
+    msgs
+      .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+      .forEach((m) => {
+        renderMessage(m);
+      });
+    
+    if (msgs.length > 0) {
+      logEvent(`Histórico de mensagens privadas com ${dstUser} carregado (${msgs.length} mensagens).`);
+    } else {
+      logEvent(`Nenhuma mensagem anterior com ${dstUser}.`);
+    }
+  } catch (e) {
+    console.error("Erro ao carregar histórico de mensagens privadas:", e);
+    logEvent("Erro ao carregar histórico de mensagens privadas.");
+  }
+}
+
+closePrivateChatBtn.addEventListener("click", closePrivateChat);
 
 sendBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -261,15 +403,46 @@ messageInput.addEventListener("keydown", (e) => {
 });
 
 // ---------- Renderizar mensagens ----------
+// Cache de mensagens já renderizadas para evitar duplicatas
+const renderedMessages = new Set();
+
+function getMessageId(msg) {
+  const { src, dst, user, channel, message, timestamp, clock } = msg;
+  if (dst) {
+    // Mensagem privada: usa src, dst, timestamp e clock
+    return `private_${src || user}_${dst}_${timestamp}_${clock}`;
+  } else {
+    // Mensagem de canal: usa user, channel, timestamp e clock
+    return `channel_${user}_${channel}_${message}_${timestamp}_${clock}`;
+  }
+}
+
 function renderMessage(msg, forcedChannel = null) {
   const { topic, user, channel, message, timestamp, clock, src, dst } = msg;
+  
+  // Gera ID único para a mensagem
+  const msgId = getMessageId(msg);
+  
+  // Verifica se a mensagem já foi renderizada
+  if (renderedMessages.has(msgId)) {
+    return; // Já renderizada, ignora
+  }
   
   // Mensagens privadas são renderizadas sempre (não dependem de canal ativo)
   if (dst) {
     // É mensagem privada
+    // Só renderiza se a mensagem for para o usuário atual ou do usuário atual
+    const sender = src || user;
+    if (sender !== currentUser && dst !== currentUser) {
+      // Mensagem entre outros usuários, não renderizar
+      return;
+    }
+    
     const div = document.createElement("div");
     div.classList.add("msg", "private");
-    const sender = src || user;
+    div.dataset.src = sender;
+    div.dataset.dst = dst;
+    div.dataset.msgId = msgId;
     if (sender === currentUser) div.classList.add("self");
     if ((sender || "").toLowerCase().includes("bot")) div.classList.add("bot");
 
@@ -279,7 +452,15 @@ function renderMessage(msg, forcedChannel = null) {
       (timestamp || Date.now() / 1000) * 1000
     ).toLocaleTimeString();
     const clockStr = clock !== undefined ? ` [C:${clock}]` : "";
-    const direction = sender === currentUser ? `→ ${dst}` : `${sender} → você`;
+    
+    // Mostra de forma mais clara quem está conversando
+    let direction;
+    if (sender === currentUser) {
+      direction = `→ ${dst}`;
+    } else {
+      direction = `${sender} → você`;
+    }
+    
     meta.innerHTML = `<span class="user">[PRIVADA] ${direction}</span> <span>${timeStr}${clockStr}</span>`;
     div.append(meta);
 
@@ -288,17 +469,31 @@ function renderMessage(msg, forcedChannel = null) {
     txt.textContent = message;
     div.append(txt);
 
-    messagesEl.append(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    // Mensagens privadas: renderiza se estiver visualizando esta conversa privada
+    const isPrivateConversation = activeChannelTitle.textContent.includes("Conversa privada");
+    const relatedUser = sender === currentUser ? dst : sender;
+    const currentDst = privateMessageDst.value;
+    
+    // Só mostra mensagens privadas se estiver visualizando essa conversa
+    if (isPrivateConversation && currentDst && relatedUser === currentDst) {
+      messagesEl.append(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      renderedMessages.add(msgId); // Marca como renderizada
+    }
     return;
   }
   
   // Mensagem de canal
   const ch = forcedChannel || channel || topic;
+  // Não renderiza mensagens de canal se estiver visualizando conversa privada
+  if (activeChannelTitle.textContent.includes("Conversa privada")) {
+    return;
+  }
   if (!ch || ch !== activeChannel) return;
 
   const div = document.createElement("div");
   div.classList.add("msg");
+  div.dataset.msgId = msgId;
   if (user === currentUser) div.classList.add("self");
   if ((user || "").toLowerCase().includes("bot")) div.classList.add("bot");
 
@@ -318,6 +513,7 @@ function renderMessage(msg, forcedChannel = null) {
 
   messagesEl.append(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+  renderedMessages.add(msgId); // Marca como renderizada
 }
 
 // ---------- SSE: eventos ----------
@@ -334,7 +530,33 @@ es.addEventListener("message", (e) => {
       logEvent(`Novo coordenador eleito: ${coordinator}`);
     } else if (data.dst || data.channel || (data.topic && data.topic !== "servers")) {
       // Renderiza mensagens privadas (dst) ou de canais, mas não anúncios de servidores
-      renderMessage(data);
+      // Se for mensagem privada e estiver visualizando conversa privada, atualiza título se necessário
+      if (data.dst && currentUser) {
+        const sender = data.src || data.user;
+        const dst = data.dst;
+        const isForCurrentUser = dst === currentUser || sender === currentUser;
+        
+        if (isForCurrentUser) {
+          const isPrivateConversation = activeChannelTitle.textContent.includes("Conversa privada");
+          const relatedUser = sender === currentUser ? dst : sender;
+          const currentDst = privateMessageDst.value;
+          
+          // Se não está visualizando conversa privada, abre conversa privada
+          if (!isPrivateConversation) {
+            openPrivateChat(relatedUser);
+          } else if (relatedUser !== currentDst) {
+            // É de outra conversa - muda para esta conversa
+            openPrivateChat(relatedUser);
+          }
+          // Renderiza a mensagem (só aparece se estiver na conversa correta)
+          renderMessage(data);
+        }
+      } else {
+        // Mensagem de canal - só renderiza se não estiver visualizando conversa privada
+        if (!activeChannelTitle.textContent.includes("Conversa privada")) {
+          renderMessage(data);
+        }
+      }
     }
   } catch {}
 });
@@ -640,3 +862,4 @@ function pushDebugMessage(msg) {
   debugPayloadViewer.textContent = `// Payload MessagePack decodificado como JSON\n// ${size} bytes\n\n${jsonStr}`;
   msgpackRaw.textContent = `// Representação bruta do último pacote MessagePack\n\n${jsonStr}`;
 }
+
