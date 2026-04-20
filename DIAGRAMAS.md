@@ -247,7 +247,7 @@ projeto-sistemas-distribuidos/
 │   └── requirements.txt      # pyzmq, msgpack
 │
 ├── docker-compose.yml         # Orquestração Docker
-└── readme.md                  # Documentação
+└── README.md                  # Documentação
 ```
 
 ## 7. Componentes e Tecnologias
